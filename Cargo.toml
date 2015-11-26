@@ -1,0 +1,4 @@
+[package]
+name = "core"
+version = "0.1.0"
+authors = ["The Rust Project Developers", "Philipp Oppermann <dev@phil-opp.com>"]
