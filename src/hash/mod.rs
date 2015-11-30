@@ -69,13 +69,13 @@
 //! }
 //! ```
 
-
+#![stable(feature = "rust1", since = "1.0.0")]
 
 use prelude::v1::*;
 
 use mem;
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub use self::sip::SipHasher;
 
 mod sip;
@@ -96,14 +96,14 @@ mod sip;
 /// `HashMap` and `HashSet` both rely on this behavior.
 ///
 /// This trait can be used with `#[derive]`.
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub trait Hash {
     /// Feeds this value into the state given, updating the hasher as necessary.
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn hash<H: Hasher>(&self, state: &mut H);
 
     /// Feeds a slice of this type into the state provided.
-    
+    #[stable(feature = "hash_slice", since = "1.3.0")]
     fn hash_slice<H: Hasher>(data: &[Self], state: &mut H)
         where Self: Sized
     {
@@ -114,43 +114,43 @@ pub trait Hash {
 }
 
 /// A trait which represents the ability to hash an arbitrary stream of bytes.
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub trait Hasher {
     /// Completes a round of hashing, producing the output hash generated.
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn finish(&self) -> u64;
 
     /// Writes some data into this `Hasher`
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn write(&mut self, bytes: &[u8]);
 
     /// Write a single `u8` into this hasher
     #[inline]
-    
+    #[stable(feature = "hasher_write", since = "1.3.0")]
     fn write_u8(&mut self, i: u8) {
         self.write(&[i])
     }
     /// Write a single `u16` into this hasher.
     #[inline]
-    
+    #[stable(feature = "hasher_write", since = "1.3.0")]
     fn write_u16(&mut self, i: u16) {
         self.write(&unsafe { mem::transmute::<_, [u8; 2]>(i) })
     }
     /// Write a single `u32` into this hasher.
     #[inline]
-    
+    #[stable(feature = "hasher_write", since = "1.3.0")]
     fn write_u32(&mut self, i: u32) {
         self.write(&unsafe { mem::transmute::<_, [u8; 4]>(i) })
     }
     /// Write a single `u64` into this hasher.
     #[inline]
-    
+    #[stable(feature = "hasher_write", since = "1.3.0")]
     fn write_u64(&mut self, i: u64) {
         self.write(&unsafe { mem::transmute::<_, [u8; 8]>(i) })
     }
     /// Write a single `usize` into this hasher.
     #[inline]
-    
+    #[stable(feature = "hasher_write", since = "1.3.0")]
     fn write_usize(&mut self, i: usize) {
         let bytes = unsafe {
             ::slice::from_raw_parts(&i as *const usize as *const u8, mem::size_of::<usize>())
@@ -160,31 +160,31 @@ pub trait Hasher {
 
     /// Write a single `i8` into this hasher.
     #[inline]
-    
+    #[stable(feature = "hasher_write", since = "1.3.0")]
     fn write_i8(&mut self, i: i8) {
         self.write_u8(i as u8)
     }
     /// Write a single `i16` into this hasher.
     #[inline]
-    
+    #[stable(feature = "hasher_write", since = "1.3.0")]
     fn write_i16(&mut self, i: i16) {
         self.write_u16(i as u16)
     }
     /// Write a single `i32` into this hasher.
     #[inline]
-    
+    #[stable(feature = "hasher_write", since = "1.3.0")]
     fn write_i32(&mut self, i: i32) {
         self.write_u32(i as u32)
     }
     /// Write a single `i64` into this hasher.
     #[inline]
-    
+    #[stable(feature = "hasher_write", since = "1.3.0")]
     fn write_i64(&mut self, i: i64) {
         self.write_u64(i as u64)
     }
     /// Write a single `isize` into this hasher.
     #[inline]
-    
+    #[stable(feature = "hasher_write", since = "1.3.0")]
     fn write_isize(&mut self, i: isize) {
         self.write_usize(i as usize)
     }
@@ -200,7 +200,7 @@ mod impls {
 
     macro_rules! impl_write {
         ($(($ty:ident, $meth:ident),)*) => {$(
-            
+            #[stable(feature = "rust1", since = "1.0.0")]
             impl Hash for $ty {
                 fn hash<H: Hasher>(&self, state: &mut H) {
                     state.$meth(*self)
@@ -230,21 +230,21 @@ mod impls {
         (isize, write_isize),
     }
 
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     impl Hash for bool {
         fn hash<H: Hasher>(&self, state: &mut H) {
             state.write_u8(*self as u8)
         }
     }
 
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     impl Hash for char {
         fn hash<H: Hasher>(&self, state: &mut H) {
             state.write_u32(*self as u32)
         }
     }
 
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     impl Hash for str {
         fn hash<H: Hasher>(&self, state: &mut H) {
             state.write(self.as_bytes());
@@ -254,14 +254,14 @@ mod impls {
 
     macro_rules! impl_hash_tuple {
         () => (
-            
+            #[stable(feature = "rust1", since = "1.0.0")]
             impl Hash for () {
                 fn hash<H: Hasher>(&self, _state: &mut H) {}
             }
         );
 
         ( $($name:ident)+) => (
-            
+            #[stable(feature = "rust1", since = "1.0.0")]
             impl<$($name: Hash),*> Hash for ($($name,)*) {
                 #[allow(non_snake_case)]
                 fn hash<S: Hasher>(&self, state: &mut S) {
@@ -286,7 +286,7 @@ mod impls {
     impl_hash_tuple! { A B C D E F G H I J K }
     impl_hash_tuple! { A B C D E F G H I J K L }
 
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     impl<T: Hash> Hash for [T] {
         fn hash<H: Hasher>(&self, state: &mut H) {
             self.len().hash(state);
@@ -295,28 +295,28 @@ mod impls {
     }
 
 
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     impl<'a, T: ?Sized + Hash> Hash for &'a T {
         fn hash<H: Hasher>(&self, state: &mut H) {
             (**self).hash(state);
         }
     }
 
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     impl<'a, T: ?Sized + Hash> Hash for &'a mut T {
         fn hash<H: Hasher>(&self, state: &mut H) {
             (**self).hash(state);
         }
     }
 
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     impl<T> Hash for *const T {
         fn hash<H: Hasher>(&self, state: &mut H) {
             state.write_usize(*self as usize)
         }
     }
 
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     impl<T> Hash for *mut T {
         fn hash<H: Hasher>(&self, state: &mut H) {
             state.write_usize(*self as usize)

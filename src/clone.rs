@@ -19,14 +19,14 @@
 //! explicitly, by convention implementing the `Clone` trait and calling
 //! the `clone` method.
 
-
+#![stable(feature = "rust1", since = "1.0.0")]
 
 use marker::Sized;
 
 /// A common trait for cloning an object.
 ///
 /// This trait can be used with `#[derive]`.
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub trait Clone : Sized {
     /// Returns a copy of the value.
     ///
@@ -37,7 +37,7 @@ pub trait Clone : Sized {
     ///
     /// assert_eq!("Hello", hello.clone());
     /// ```
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn clone(&self) -> Self;
 
     /// Performs copy-assignment from `source`.
@@ -46,13 +46,13 @@ pub trait Clone : Sized {
     /// but can be overridden to reuse the resources of `a` to avoid unnecessary
     /// allocations.
     #[inline(always)]
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn clone_from(&mut self, source: &Self) {
         *self = source.clone()
     }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T: ?Sized> Clone for &'a T {
     /// Returns a shallow copy of the reference.
     #[inline]
@@ -61,7 +61,7 @@ impl<'a, T: ?Sized> Clone for &'a T {
 
 macro_rules! clone_impl {
     ($t:ty) => {
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl Clone for $t {
             /// Returns a deep copy of the value.
             #[inline]

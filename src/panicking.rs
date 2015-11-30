@@ -29,7 +29,10 @@
 //! library, but the location of this may change over time.
 
 #![allow(dead_code, missing_docs)]
-
+#![unstable(feature = "core_panic",
+            reason = "internal details of the implementation of the `panic!` \
+                      and related macros",
+            issue = "0")]
 
 use fmt;
 

@@ -12,6 +12,6 @@
 //!
 //! *[See also the `u32` primitive type](../primitive.u32.html).*
 
-
+#![stable(feature = "rust1", since = "1.0.0")]
 
 uint_module! { u32, i32, 32 }

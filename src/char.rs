@@ -13,7 +13,7 @@
 //! For more details, see ::rustc_unicode::char (a.k.a. std::char)
 
 #![allow(non_snake_case)]
-
+#![stable(feature = "core_char", since = "1.2.0")]
 
 use iter::Iterator;
 use mem::transmute;
@@ -72,7 +72,7 @@ const MAX_THREE_B: u32 =  0x10000;
 /// [`char`]: primitive.char.html
 /// [Unicode Scalar Value]: http://www.unicode.org/glossary/#unicode_scalar_value
 /// [Code Point]: http://www.unicode.org/glossary/#code_point
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub const MAX: char = '\u{10ffff}';
 
 /// Converts a `u32` to a `char`.
@@ -122,7 +122,7 @@ pub const MAX: char = '\u{10ffff}';
 /// assert_eq!(None, c);
 /// ```
 #[inline]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub fn from_u32(i: u32) -> Option<char> {
     // catch out-of-bounds and surrogates
     if (i > MAX as u32) || (i >= 0xD800 && i <= 0xDFFF) {
@@ -172,7 +172,7 @@ pub fn from_u32(i: u32) -> Option<char> {
 /// assert_eq!('❤', c);
 /// ```
 #[inline]
-
+#[stable(feature = "char_from_unchecked", since = "1.5.0")]
 pub unsafe fn from_u32_unchecked(i: u32) -> char {
     transmute(i)
 }
@@ -232,7 +232,7 @@ pub unsafe fn from_u32_unchecked(i: u32) -> char {
 /// assert!(result.is_err());
 /// ```
 #[inline]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub fn from_digit(num: u32, radix: u32) -> Option<char> {
     if radix > 36 {
         panic!("from_digit: radix is too high (maximum 36)");
@@ -253,7 +253,9 @@ pub fn from_digit(num: u32, radix: u32) -> Option<char> {
 // unicode/char.rs, not here
 #[allow(missing_docs)] // docs in libunicode/u_char.rs
 #[doc(hidden)]
-
+#[unstable(feature = "core_char_ext",
+           reason = "the stable interface is `impl char` in later crate",
+           issue = "27701")]
 pub trait CharExt {
     fn is_digit(self, radix: u32) -> bool;
     fn to_digit(self, radix: u32) -> Option<u32>;
@@ -265,7 +267,9 @@ pub trait CharExt {
     fn encode_utf16(self, dst: &mut [u16]) -> Option<usize>;
 }
 
-
+#[unstable(feature = "core_char_ext",
+           reason = "the stable interface is `impl char` in later crate",
+           issue = "27701")]
 impl CharExt for char {
     #[inline]
     fn is_digit(self, radix: u32) -> bool {
@@ -342,7 +346,9 @@ impl CharExt for char {
 /// If the buffer is not large enough, nothing will be written into it
 /// and a `None` will be returned.
 #[inline]
-
+#[unstable(feature = "char_internals",
+           reason = "this function should not be exposed publicly",
+           issue = "0")]
 #[doc(hidden)]
 pub fn encode_utf8_raw(code: u32, dst: &mut [u8]) -> Option<usize> {
     // Marked #[inline] to allow llvm optimizing it away
@@ -375,7 +381,9 @@ pub fn encode_utf8_raw(code: u32, dst: &mut [u8]) -> Option<usize> {
 /// If the buffer is not large enough, nothing will be written into it
 /// and a `None` will be returned.
 #[inline]
-
+#[unstable(feature = "char_internals",
+           reason = "this function should not be exposed publicly",
+           issue = "0")]
 #[doc(hidden)]
 pub fn encode_utf16_raw(mut ch: u32, dst: &mut [u16]) -> Option<usize> {
     // Marked #[inline] to allow llvm optimizing it away
@@ -403,7 +411,7 @@ pub fn encode_utf16_raw(mut ch: u32, dst: &mut [u16]) -> Option<usize> {
 /// [`escape_unicode()`]: primitive.char.html#method.escape_unicode
 /// [`char`]: primitive.char.html
 #[derive(Clone)]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub struct EscapeUnicode {
     c: char,
     state: EscapeUnicodeState
@@ -419,7 +427,7 @@ enum EscapeUnicodeState {
     Done,
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl Iterator for EscapeUnicode {
     type Item = char;
 
@@ -483,7 +491,7 @@ impl Iterator for EscapeUnicode {
 /// [`escape_default()`]: primitive.char.html#method.escape_default
 /// [`char`]: primitive.char.html
 #[derive(Clone)]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub struct EscapeDefault {
     state: EscapeDefaultState
 }
@@ -496,7 +504,7 @@ enum EscapeDefaultState {
     Unicode(EscapeUnicode),
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl Iterator for EscapeDefault {
     type Item = char;
 

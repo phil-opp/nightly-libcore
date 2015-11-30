@@ -12,6 +12,6 @@
 //!
 //! *[See also the `i32` primitive type](../primitive.i32.html).*
 
-
+#![stable(feature = "rust1", since = "1.0.0")]
 
 int_module! { i32, 32 }

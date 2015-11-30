@@ -12,7 +12,7 @@
 //!
 //! For more details `std::slice`.
 
-
+#![stable(feature = "rust1", since = "1.0.0")]
 
 // How this module is organized.
 //
@@ -63,7 +63,9 @@ use raw::Slice as RawSlice;
 /// Extension methods for slices.
 #[allow(missing_docs)] // docs in libcollections
 #[doc(hidden)]
-
+#[unstable(feature = "core_slice_ext",
+           reason = "stable interface provided by `impl [T]` in later crates",
+           issue = "27701")]
 pub trait SliceExt {
     type Item;
 
@@ -152,7 +154,9 @@ macro_rules! slice_ref {
     }};
 }
 
-
+#[unstable(feature = "core_slice_ext",
+           reason = "stable interface provided by `impl [T]` in later crates",
+           issue = "27701")]
 impl<T> SliceExt for [T] {
     type Item = T;
 
@@ -543,7 +547,7 @@ impl<T> SliceExt for [T] {
     }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<T> ops::Index<usize> for [T] {
     type Output = T;
 
@@ -553,7 +557,7 @@ impl<T> ops::Index<usize> for [T] {
     }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<T> ops::IndexMut<usize> for [T] {
     #[inline]
     fn index_mut(&mut self, index: usize) -> &mut T {
@@ -574,7 +578,7 @@ fn slice_index_order_fail(index: usize, end: usize) -> ! {
     panic!("slice index starts at {} but ends at {}", index, end);
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<T> ops::Index<ops::Range<usize>> for [T] {
     type Output = [T];
 
@@ -593,7 +597,7 @@ impl<T> ops::Index<ops::Range<usize>> for [T] {
         }
     }
 }
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<T> ops::Index<ops::RangeTo<usize>> for [T] {
     type Output = [T];
 
@@ -602,7 +606,7 @@ impl<T> ops::Index<ops::RangeTo<usize>> for [T] {
         self.index(ops::Range{ start: 0, end: index.end })
     }
 }
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<T> ops::Index<ops::RangeFrom<usize>> for [T] {
     type Output = [T];
 
@@ -611,7 +615,7 @@ impl<T> ops::Index<ops::RangeFrom<usize>> for [T] {
         self.index(ops::Range{ start: index.start, end: self.len() })
     }
 }
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<T> ops::Index<RangeFull> for [T] {
     type Output = [T];
 
@@ -621,7 +625,7 @@ impl<T> ops::Index<RangeFull> for [T] {
     }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<T> ops::IndexMut<ops::Range<usize>> for [T] {
     #[inline]
     fn index_mut(&mut self, index: ops::Range<usize>) -> &mut [T] {
@@ -638,14 +642,14 @@ impl<T> ops::IndexMut<ops::Range<usize>> for [T] {
         }
     }
 }
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<T> ops::IndexMut<ops::RangeTo<usize>> for [T] {
     #[inline]
     fn index_mut(&mut self, index: ops::RangeTo<usize>) -> &mut [T] {
         self.index_mut(ops::Range{ start: 0, end: index.end })
     }
 }
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<T> ops::IndexMut<ops::RangeFrom<usize>> for [T] {
     #[inline]
     fn index_mut(&mut self, index: ops::RangeFrom<usize>) -> &mut [T] {
@@ -653,7 +657,7 @@ impl<T> ops::IndexMut<ops::RangeFrom<usize>> for [T] {
         self.index_mut(ops::Range{ start: index.start, end: len })
     }
 }
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<T> ops::IndexMut<RangeFull> for [T] {
     #[inline]
     fn index_mut(&mut self, _index: RangeFull) -> &mut [T] {
@@ -666,12 +670,12 @@ impl<T> ops::IndexMut<RangeFull> for [T] {
 // Common traits
 ////////////////////////////////////////////////////////////////////////////////
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T> Default for &'a [T] {
     fn default() -> &'a [T] { &[] }
 }
 
-
+#[stable(feature = "mut_slice_default", since = "1.5.0")]
 impl<'a, T> Default for &'a mut [T] {
     fn default() -> &'a mut [T] { &mut [] }
 }
@@ -680,7 +684,7 @@ impl<'a, T> Default for &'a mut [T] {
 // Iterators
 //
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T> IntoIterator for &'a [T] {
     type Item = &'a T;
     type IntoIter = Iter<'a, T>;
@@ -690,7 +694,7 @@ impl<'a, T> IntoIterator for &'a [T] {
     }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T> IntoIterator for &'a mut [T] {
     type Item = &'a mut T;
     type IntoIter = IterMut<'a, T>;
@@ -708,7 +712,7 @@ fn size_from_ptr<T>(_: *const T) -> usize {
 // The shared definition of the `Iter` and `IterMut` iterators
 macro_rules! iterator {
     (struct $name:ident -> $ptr:ty, $elem:ty) => {
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl<'a, T> Iterator for $name<'a, T> {
             type Item = $elem;
 
@@ -755,7 +759,7 @@ macro_rules! iterator {
             }
         }
 
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl<'a, T> DoubleEndedIterator for $name<'a, T> {
             #[inline]
             fn next_back(&mut self) -> Option<$elem> {
@@ -806,16 +810,16 @@ macro_rules! make_mut_slice {
 }
 
 /// Immutable slice iterator
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub struct Iter<'a, T: 'a> {
     ptr: *const T,
     end: *const T,
     _marker: marker::PhantomData<&'a T>,
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 unsafe impl<'a, T: Sync> Sync for Iter<'a, T> {}
-
+#[stable(feature = "rust1", since = "1.0.0")]
 unsafe impl<'a, T: Sync> Send for Iter<'a, T> {}
 
 impl<'a, T> Iter<'a, T> {
@@ -823,7 +827,7 @@ impl<'a, T> Iter<'a, T> {
     ///
     /// This has the same lifetime as the original slice, and so the
     /// iterator can continue to be used while this exists.
-    
+    #[stable(feature = "iter_to_slice", since = "1.4.0")]
     pub fn as_slice(&self) -> &'a [T] {
         make_slice!(self.ptr, self.end)
     }
@@ -845,25 +849,25 @@ impl<'a, T> Iter<'a, T> {
 
 iterator!{struct Iter -> *const T, &'a T}
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T> ExactSizeIterator for Iter<'a, T> {}
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T> Clone for Iter<'a, T> {
     fn clone(&self) -> Iter<'a, T> { Iter { ptr: self.ptr, end: self.end, _marker: self._marker } }
 }
 
 /// Mutable slice iterator.
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub struct IterMut<'a, T: 'a> {
     ptr: *mut T,
     end: *mut T,
     _marker: marker::PhantomData<&'a mut T>,
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 unsafe impl<'a, T: Sync> Sync for IterMut<'a, T> {}
-
+#[stable(feature = "rust1", since = "1.0.0")]
 unsafe impl<'a, T: Send> Send for IterMut<'a, T> {}
 
 impl<'a, T> IterMut<'a, T> {
@@ -873,7 +877,7 @@ impl<'a, T> IterMut<'a, T> {
     /// to consume the iterator. Consider using the `Slice` and
     /// `SliceMut` implementations for obtaining slices with more
     /// restricted lifetimes that do not consume the iterator.
-    
+    #[stable(feature = "iter_to_slice", since = "1.4.0")]
     pub fn into_slice(self) -> &'a mut [T] {
         make_mut_slice!(self.ptr, self.end)
     }
@@ -895,7 +899,7 @@ impl<'a, T> IterMut<'a, T> {
 
 iterator!{struct IterMut -> *mut T, &'a mut T}
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T> ExactSizeIterator for IterMut<'a, T> {}
 
 /// An internal abstraction over the splitting iterators, so that
@@ -908,7 +912,7 @@ trait SplitIter: DoubleEndedIterator {
 
 /// An iterator over subslices separated by elements that match a predicate
 /// function.
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub struct Split<'a, T:'a, P> where P: FnMut(&T) -> bool {
     v: &'a [T],
     pred: P,
@@ -916,7 +920,7 @@ pub struct Split<'a, T:'a, P> where P: FnMut(&T) -> bool {
 }
 
 // FIXME(#19839) Remove in favor of `#[derive(Clone)]`
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T, P> Clone for Split<'a, T, P> where P: Clone + FnMut(&T) -> bool {
     fn clone(&self) -> Split<'a, T, P> {
         Split {
@@ -927,7 +931,7 @@ impl<'a, T, P> Clone for Split<'a, T, P> where P: Clone + FnMut(&T) -> bool {
     }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T, P> Iterator for Split<'a, T, P> where P: FnMut(&T) -> bool {
     type Item = &'a [T];
 
@@ -955,7 +959,7 @@ impl<'a, T, P> Iterator for Split<'a, T, P> where P: FnMut(&T) -> bool {
     }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T, P> DoubleEndedIterator for Split<'a, T, P> where P: FnMut(&T) -> bool {
     #[inline]
     fn next_back(&mut self) -> Option<&'a [T]> {
@@ -981,7 +985,7 @@ impl<'a, T, P> SplitIter for Split<'a, T, P> where P: FnMut(&T) -> bool {
 
 /// An iterator over the subslices of the vector which are separated
 /// by elements that match `pred`.
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub struct SplitMut<'a, T:'a, P> where P: FnMut(&T) -> bool {
     v: &'a mut [T],
     pred: P,
@@ -1000,7 +1004,7 @@ impl<'a, T, P> SplitIter for SplitMut<'a, T, P> where P: FnMut(&T) -> bool {
     }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T, P> Iterator for SplitMut<'a, T, P> where P: FnMut(&T) -> bool {
     type Item = &'a mut [T];
 
@@ -1035,7 +1039,7 @@ impl<'a, T, P> Iterator for SplitMut<'a, T, P> where P: FnMut(&T) -> bool {
     }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T, P> DoubleEndedIterator for SplitMut<'a, T, P> where
     P: FnMut(&T) -> bool,
 {
@@ -1092,7 +1096,7 @@ impl<T, I: SplitIter<Item=T>> Iterator for GenericSplitN<I> {
 
 /// An iterator over subslices separated by elements that match a predicate
 /// function, limited to a given number of splits.
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub struct SplitN<'a, T: 'a, P> where P: FnMut(&T) -> bool {
     inner: GenericSplitN<Split<'a, T, P>>
 }
@@ -1100,14 +1104,14 @@ pub struct SplitN<'a, T: 'a, P> where P: FnMut(&T) -> bool {
 /// An iterator over subslices separated by elements that match a
 /// predicate function, limited to a given number of splits, starting
 /// from the end of the slice.
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub struct RSplitN<'a, T: 'a, P> where P: FnMut(&T) -> bool {
     inner: GenericSplitN<Split<'a, T, P>>
 }
 
 /// An iterator over subslices separated by elements that match a predicate
 /// function, limited to a given number of splits.
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub struct SplitNMut<'a, T: 'a, P> where P: FnMut(&T) -> bool {
     inner: GenericSplitN<SplitMut<'a, T, P>>
 }
@@ -1115,14 +1119,14 @@ pub struct SplitNMut<'a, T: 'a, P> where P: FnMut(&T) -> bool {
 /// An iterator over subslices separated by elements that match a
 /// predicate function, limited to a given number of splits, starting
 /// from the end of the slice.
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub struct RSplitNMut<'a, T: 'a, P> where P: FnMut(&T) -> bool {
     inner: GenericSplitN<SplitMut<'a, T, P>>
 }
 
 macro_rules! forward_iterator {
     ($name:ident: $elem:ident, $iter_of:ty) => {
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl<'a, $elem, P> Iterator for $name<'a, $elem, P> where
             P: FnMut(&T) -> bool
         {
@@ -1147,14 +1151,14 @@ forward_iterator! { SplitNMut: T, &'a mut [T] }
 forward_iterator! { RSplitNMut: T, &'a mut [T] }
 
 /// An iterator over overlapping subslices of length `size`.
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub struct Windows<'a, T:'a> {
     v: &'a [T],
     size: usize
 }
 
 // FIXME(#19839) Remove in favor of `#[derive(Clone)]`
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T> Clone for Windows<'a, T> {
     fn clone(&self) -> Windows<'a, T> {
         Windows {
@@ -1164,7 +1168,7 @@ impl<'a, T> Clone for Windows<'a, T> {
     }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T> Iterator for Windows<'a, T> {
     type Item = &'a [T];
 
@@ -1218,7 +1222,7 @@ impl<'a, T> Iterator for Windows<'a, T> {
     }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T> DoubleEndedIterator for Windows<'a, T> {
     #[inline]
     fn next_back(&mut self) -> Option<&'a [T]> {
@@ -1232,7 +1236,7 @@ impl<'a, T> DoubleEndedIterator for Windows<'a, T> {
     }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T> ExactSizeIterator for Windows<'a, T> {}
 
 /// An iterator over a slice in (non-overlapping) chunks (`size` elements at a
@@ -1240,14 +1244,14 @@ impl<'a, T> ExactSizeIterator for Windows<'a, T> {}
 ///
 /// When the slice len is not evenly divided by the chunk size, the last slice
 /// of the iteration will be the remainder.
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub struct Chunks<'a, T:'a> {
     v: &'a [T],
     size: usize
 }
 
 // FIXME(#19839) Remove in favor of `#[derive(Clone)]`
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T> Clone for Chunks<'a, T> {
     fn clone(&self) -> Chunks<'a, T> {
         Chunks {
@@ -1257,7 +1261,7 @@ impl<'a, T> Clone for Chunks<'a, T> {
     }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T> Iterator for Chunks<'a, T> {
     type Item = &'a [T];
 
@@ -1318,7 +1322,7 @@ impl<'a, T> Iterator for Chunks<'a, T> {
     }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T> DoubleEndedIterator for Chunks<'a, T> {
     #[inline]
     fn next_back(&mut self) -> Option<&'a [T]> {
@@ -1334,19 +1338,19 @@ impl<'a, T> DoubleEndedIterator for Chunks<'a, T> {
     }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T> ExactSizeIterator for Chunks<'a, T> {}
 
 /// An iterator over a slice in (non-overlapping) mutable chunks (`size`
 /// elements at a time). When the slice len is not evenly divided by the chunk
 /// size, the last slice of the iteration will be the remainder.
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub struct ChunksMut<'a, T:'a> {
     v: &'a mut [T],
     chunk_size: usize
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T> Iterator for ChunksMut<'a, T> {
     type Item = &'a mut [T];
 
@@ -1410,7 +1414,7 @@ impl<'a, T> Iterator for ChunksMut<'a, T> {
     }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T> DoubleEndedIterator for ChunksMut<'a, T> {
     #[inline]
     fn next_back(&mut self) -> Option<&'a mut [T]> {
@@ -1428,7 +1432,7 @@ impl<'a, T> DoubleEndedIterator for ChunksMut<'a, T> {
     }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T> ExactSizeIterator for ChunksMut<'a, T> {}
 
 //
@@ -1436,8 +1440,8 @@ impl<'a, T> ExactSizeIterator for ChunksMut<'a, T> {}
 //
 
 /// Converts a reference to A into a slice of length 1 (without copying).
-
-
+#[unstable(feature = "ref_slice", issue = "27774")]
+#[rustc_deprecated(since = "1.5.0", reason = "unclear whether belongs in libstd")]
 pub fn ref_slice<A>(s: &A) -> &[A] {
     unsafe {
         from_raw_parts(s, 1)
@@ -1445,8 +1449,8 @@ pub fn ref_slice<A>(s: &A) -> &[A] {
 }
 
 /// Converts a reference to A into a slice of length 1 (without copying).
-
-
+#[unstable(feature = "ref_slice", issue = "27774")]
+#[rustc_deprecated(since = "1.5.0", reason = "unclear whether belongs in libstd")]
 pub fn mut_ref_slice<A>(s: &mut A) -> &mut [A] {
     unsafe {
         from_raw_parts_mut(s, 1)
@@ -1486,7 +1490,7 @@ pub fn mut_ref_slice<A>(s: &mut A) -> &mut [A] {
 /// }
 /// ```
 #[inline]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub unsafe fn from_raw_parts<'a, T>(p: *const T, len: usize) -> &'a [T] {
     mem::transmute(RawSlice { data: p, len: len })
 }
@@ -1498,7 +1502,7 @@ pub unsafe fn from_raw_parts<'a, T>(p: *const T, len: usize) -> &'a [T] {
 /// as not being able to provide a non-aliasing guarantee of the returned
 /// mutable slice.
 #[inline]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub unsafe fn from_raw_parts_mut<'a, T>(p: *mut T, len: usize) -> &'a mut [T] {
     mem::transmute(RawSlice { data: p, len: len })
 }
@@ -1508,7 +1512,8 @@ pub unsafe fn from_raw_parts_mut<'a, T>(p: *mut T, len: usize) -> &'a mut [T] {
 //
 
 /// Operations on `[u8]`.
-
+#[unstable(feature = "slice_bytes", reason = "needs review",
+           issue = "27740")]
 pub mod bytes {
     use ptr;
     use slice::SliceExt;
@@ -1549,7 +1554,7 @@ pub mod bytes {
 // Boilerplate traits
 //
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<A, B> PartialEq<[B]> for [A] where A: PartialEq<B> {
     fn eq(&self, other: &[B]) -> bool {
         if self.len() != other.len() {
@@ -1579,10 +1584,10 @@ impl<A, B> PartialEq<[B]> for [A] where A: PartialEq<B> {
     }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<T: Eq> Eq for [T] {}
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<T: Ord> Ord for [T] {
     fn cmp(&self, other: &[T]) -> Ordering {
         let l = cmp::min(self.len(), other.len());
@@ -1603,7 +1608,7 @@ impl<T: Ord> Ord for [T] {
     }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<T: PartialOrd> PartialOrd for [T] {
     fn partial_cmp(&self, other: &[T]) -> Option<Ordering> {
         let l = cmp::min(self.len(), other.len());

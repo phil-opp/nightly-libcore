@@ -21,8 +21,11 @@
 //! These are all experimental. The interface may change entirely, without
 //! warning.
 
-
-
+#![unstable(feature = "core_simd",
+            reason = "needs an RFC to flesh out the design",
+            issue = "27731")]
+#![rustc_deprecated(since = "1.3.0",
+              reason = "use the external `simd` crate instead")]
 
 #![allow(non_camel_case_types)]
 #![allow(missing_docs)]

@@ -14,7 +14,7 @@
 //! intrinsic properties of the type. These classifications, often called
 //! 'kinds', are represented as traits.
 
-
+#![stable(feature = "rust1", since = "1.0.0")]
 
 use clone::Clone;
 use cmp;
@@ -24,19 +24,19 @@ use hash::Hash;
 use hash::Hasher;
 
 /// Types that can be transferred across thread boundaries.
-
+#[stable(feature = "rust1", since = "1.0.0")]
 #[lang = "send"]
 #[rustc_on_unimplemented = "`{Self}` cannot be sent between threads safely"]
 pub unsafe trait Send {
     // empty.
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 unsafe impl Send for .. { }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<T: ?Sized> !Send for *const T { }
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<T: ?Sized> !Send for *mut T { }
 
 /// Types with a constant size known at compile-time.
@@ -52,7 +52,7 @@ impl<T: ?Sized> !Send for *mut T { }
 /// // struct FooUse(Foo<[i32]>); // error: Sized is not implemented for [i32]
 /// struct BarUse(Bar<[i32]>); // OK
 /// ```
-
+#[stable(feature = "rust1", since = "1.0.0")]
 #[lang = "sized"]
 #[rustc_on_unimplemented = "`{Self}` does not have a constant size known at compile-time"]
 #[fundamental] // for Default, for example, which requires that `[T]: !Default` be evaluatable
@@ -61,7 +61,7 @@ pub trait Sized {
 }
 
 /// Types that can be "unsized" to a dynamically sized type.
-
+#[unstable(feature = "unsize", issue = "27732")]
 #[lang="unsize"]
 pub trait Unsize<T: ?Sized> {
     // Empty.
@@ -172,7 +172,7 @@ pub trait Unsize<T: ?Sized> {
 /// # Derivable
 ///
 /// This trait can be used with `#[derive]`.
-
+#[stable(feature = "rust1", since = "1.0.0")]
 #[lang = "copy"]
 pub trait Copy : Clone {
     // Empty.
@@ -219,66 +219,66 @@ pub trait Copy : Clone {
 /// wrapper around the value(s) which can be mutated when behind a `&`
 /// reference; not doing this is undefined behavior (for example,
 /// `transmute`-ing from `&T` to `&mut T` is invalid).
-
+#[stable(feature = "rust1", since = "1.0.0")]
 #[lang = "sync"]
 #[rustc_on_unimplemented = "`{Self}` cannot be shared between threads safely"]
 pub unsafe trait Sync {
     // Empty
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 unsafe impl Sync for .. { }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<T: ?Sized> !Sync for *const T { }
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<T: ?Sized> !Sync for *mut T { }
 
 macro_rules! impls{
     ($t: ident) => (
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl<T:?Sized> Hash for $t<T> {
             #[inline]
             fn hash<H: Hasher>(&self, _: &mut H) {
             }
         }
 
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl<T:?Sized> cmp::PartialEq for $t<T> {
             fn eq(&self, _other: &$t<T>) -> bool {
                 true
             }
         }
 
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl<T:?Sized> cmp::Eq for $t<T> {
         }
 
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl<T:?Sized> cmp::PartialOrd for $t<T> {
             fn partial_cmp(&self, _other: &$t<T>) -> Option<cmp::Ordering> {
                 Option::Some(cmp::Ordering::Equal)
             }
         }
 
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl<T:?Sized> cmp::Ord for $t<T> {
             fn cmp(&self, _other: &$t<T>) -> cmp::Ordering {
                 cmp::Ordering::Equal
             }
         }
 
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl<T:?Sized> Copy for $t<T> { }
 
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl<T:?Sized> Clone for $t<T> {
             fn clone(&self) -> $t<T> {
                 $t
             }
         }
 
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl<T:?Sized> Default for $t<T> {
             fn default() -> $t<T> {
                 $t
@@ -393,7 +393,7 @@ macro_rules! impls{
 /// (ideally) or `PhantomData<*const T>` (if no lifetime applies), so
 /// as not to indicate ownership.
 #[lang = "phantom_data"]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub struct PhantomData<T:?Sized>;
 
 impls! { PhantomData }
@@ -401,9 +401,9 @@ impls! { PhantomData }
 mod impls {
     use super::{Send, Sync, Sized};
 
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     unsafe impl<'a, T: Sync + ?Sized> Send for &'a T {}
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     unsafe impl<'a, T: Send + ?Sized> Send for &'a mut T {}
 }
 
@@ -442,10 +442,14 @@ mod impls {
 ///
 /// [1]: http://en.wikipedia.org/wiki/Parametricity
 #[rustc_reflect_like]
-
+#[unstable(feature = "reflect_marker",
+           reason = "requires RFC and more experience",
+           issue = "27749")]
 #[rustc_on_unimplemented = "`{Self}` does not implement `Any`; \
                             ensure all type parameters are bounded by `Any`"]
 pub trait Reflect {}
 
-
+#[unstable(feature = "reflect_marker",
+           reason = "requires RFC and more experience",
+           issue = "27749")]
 impl Reflect for .. { }

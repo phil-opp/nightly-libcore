@@ -55,7 +55,7 @@ macro_rules! panic {
 /// assert!(a + b == 30, "a = {}, b = {}", a, b);
 /// ```
 #[macro_export]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 macro_rules! assert {
     ($cond:expr) => (
         if !$cond {
@@ -82,7 +82,7 @@ macro_rules! assert {
 /// assert_eq!(a, b);
 /// ```
 #[macro_export]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 macro_rules! assert_eq {
     ($left:expr , $right:expr) => ({
         match (&($left), &($right)) {
@@ -129,7 +129,7 @@ macro_rules! assert_eq {
 /// debug_assert!(a + b == 30, "a = {}, b = {}", a, b);
 /// ```
 #[macro_export]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 macro_rules! debug_assert {
     ($($arg:tt)*) => (if cfg!(debug_assertions) { assert!($($arg)*); })
 }
@@ -219,7 +219,7 @@ macro_rules! write {
 /// assert_eq!(&w[..], "test\nformatted arguments\n".as_bytes());
 /// ```
 #[macro_export]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 macro_rules! writeln {
     ($dst:expr, $fmt:expr) => (
         write!($dst, concat!($fmt, "\n"))
@@ -271,7 +271,9 @@ macro_rules! writeln {
 /// }
 /// ```
 #[macro_export]
-
+#[unstable(feature = "core",
+           reason = "relationship with panic is unclear",
+           issue = "27701")]
 macro_rules! unreachable {
     () => ({
         panic!("internal error: entered unreachable code")
@@ -332,7 +334,9 @@ macro_rules! unreachable {
 /// }
 /// ```
 #[macro_export]
-
+#[unstable(feature = "core",
+           reason = "relationship with panic is unclear",
+           issue = "27701")]
 macro_rules! unimplemented {
     () => (panic!("not yet implemented"))
 }

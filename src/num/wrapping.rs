@@ -9,7 +9,8 @@
 // except according to those terms.
 
 #![allow(missing_docs)]
-
+#![unstable(feature = "wrapping", reason = "may be removed or relocated",
+            issue = "27755")]
 
 #[cfg(stage0)]
 pub use intrinsics::{
@@ -57,7 +58,7 @@ pub trait OverflowingOps {
 
 macro_rules! sh_impl {
     ($t:ty, $f:ty) => (
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl Shl<$f> for Wrapping<$t> {
             type Output = Wrapping<$t>;
 
@@ -67,7 +68,7 @@ macro_rules! sh_impl {
             }
         }
 
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl Shr<$f> for Wrapping<$t> {
             type Output = Wrapping<$t>;
 
@@ -100,7 +101,7 @@ sh_impl_all! { u8 u16 u32 u64 usize i8 i16 i32 i64 isize }
 
 macro_rules! wrapping_impl {
     ($($t:ty)*) => ($(
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl Add for Wrapping<$t> {
             type Output = Wrapping<$t>;
 
@@ -110,7 +111,7 @@ macro_rules! wrapping_impl {
             }
         }
 
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl Sub for Wrapping<$t> {
             type Output = Wrapping<$t>;
 
@@ -120,7 +121,7 @@ macro_rules! wrapping_impl {
             }
         }
 
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl Mul for Wrapping<$t> {
             type Output = Wrapping<$t>;
 
@@ -130,7 +131,7 @@ macro_rules! wrapping_impl {
             }
         }
 
-        
+        #[stable(feature = "wrapping_div", since = "1.3.0")]
         impl Div for Wrapping<$t> {
             type Output = Wrapping<$t>;
 
@@ -140,7 +141,7 @@ macro_rules! wrapping_impl {
             }
         }
 
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl Not for Wrapping<$t> {
             type Output = Wrapping<$t>;
 
@@ -150,7 +151,7 @@ macro_rules! wrapping_impl {
             }
         }
 
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl BitXor for Wrapping<$t> {
             type Output = Wrapping<$t>;
 
@@ -160,7 +161,7 @@ macro_rules! wrapping_impl {
             }
         }
 
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl BitOr for Wrapping<$t> {
             type Output = Wrapping<$t>;
 
@@ -170,7 +171,7 @@ macro_rules! wrapping_impl {
             }
         }
 
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl BitAnd for Wrapping<$t> {
             type Output = Wrapping<$t>;
 

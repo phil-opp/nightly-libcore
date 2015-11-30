@@ -10,7 +10,7 @@
 
 //! A module for working with borrowed data.
 
-
+#![stable(feature = "rust1", since = "1.0.0")]
 
 use marker::Sized;
 
@@ -34,7 +34,7 @@ use marker::Sized;
 /// [the book][book] for more.
 ///
 /// [book]: ../../book/borrow-and-asref.html
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub trait Borrow<Borrowed: ?Sized> {
     /// Immutably borrows from an owned value.
     ///
@@ -55,14 +55,14 @@ pub trait Borrow<Borrowed: ?Sized> {
     ///
     /// check(s);
     /// ```
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn borrow(&self) -> &Borrowed;
 }
 
 /// A trait for mutably borrowing data.
 ///
 /// Similar to `Borrow`, but for mutable borrows.
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub trait BorrowMut<Borrowed: ?Sized> : Borrow<Borrowed> {
     /// Mutably borrows from an owned value.
     ///
@@ -79,31 +79,31 @@ pub trait BorrowMut<Borrowed: ?Sized> : Borrow<Borrowed> {
     ///
     /// check(v);
     /// ```
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn borrow_mut(&mut self) -> &mut Borrowed;
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<T: ?Sized> Borrow<T> for T {
     fn borrow(&self) -> &T { self }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<T: ?Sized> BorrowMut<T> for T {
     fn borrow_mut(&mut self) -> &mut T { self }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T: ?Sized> Borrow<T> for &'a T {
     fn borrow(&self) -> &T { &**self }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T: ?Sized> Borrow<T> for &'a mut T {
     fn borrow(&self) -> &T { &**self }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T: ?Sized> BorrowMut<T> for &'a mut T {
     fn borrow_mut(&mut self) -> &mut T { &mut **self }
 }

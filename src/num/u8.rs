@@ -12,6 +12,6 @@
 //!
 //! *[See also the `u8` primitive type](../primitive.u8.html).*
 
-
+#![stable(feature = "rust1", since = "1.0.0")]
 
 uint_module! { u8, i8, 8 }

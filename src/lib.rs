@@ -52,7 +52,10 @@
 // Do not remove on snapshot creation. Needed for bootstrap. (Issue #22364)
 #![cfg_attr(stage0, feature(custom_attribute))]
 #![crate_name = "core"]
-
+#![unstable(feature = "core",
+            reason = "the libcore library has not yet been scrutinized for \
+                      stabilization in terms of structure and naming",
+            issue = "27701")]
 #![cfg_attr(stage0, staged_api)]
 #![crate_type = "rlib"]
 #![doc(html_logo_url = "https://www.rust-lang.org/logos/rust-logo-128x128-blk-v2.png",

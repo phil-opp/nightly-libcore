@@ -13,13 +13,13 @@
 //! This module contains functions for querying the size and alignment of
 //! types, initializing and manipulating memory.
 
-
+#![stable(feature = "rust1", since = "1.0.0")]
 
 use marker::Sized;
 use intrinsics;
 use ptr;
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub use intrinsics::transmute;
 
 /// Leaks a value into the void, consuming ownership and never running its
@@ -110,7 +110,7 @@ pub use intrinsics::transmute;
 ///     }
 /// }
 /// ```
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub fn forget<T>(t: T) {
     unsafe { intrinsics::forget(t) }
 }
@@ -125,7 +125,7 @@ pub fn forget<T>(t: T) {
 /// assert_eq!(4, mem::size_of::<i32>());
 /// ```
 #[inline]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub fn size_of<T>() -> usize {
     unsafe { intrinsics::size_of::<T>() }
 }
@@ -140,7 +140,7 @@ pub fn size_of<T>() -> usize {
 /// assert_eq!(4, mem::size_of_val(&5i32));
 /// ```
 #[inline]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub fn size_of_val<T: ?Sized>(val: &T) -> usize {
     unsafe { intrinsics::size_of_val(val) }
 }
@@ -158,8 +158,8 @@ pub fn size_of_val<T: ?Sized>(val: &T) -> usize {
 /// assert_eq!(4, mem::min_align_of::<i32>());
 /// ```
 #[inline]
-
-
+#[stable(feature = "rust1", since = "1.0.0")]
+#[rustc_deprecated(reason = "use `align_of` instead", since = "1.2.0")]
 pub fn min_align_of<T>() -> usize {
     unsafe { intrinsics::min_align_of::<T>() }
 }
@@ -175,8 +175,8 @@ pub fn min_align_of<T>() -> usize {
 /// assert_eq!(4, mem::min_align_of_val(&5i32));
 /// ```
 #[inline]
-
-
+#[stable(feature = "rust1", since = "1.0.0")]
+#[rustc_deprecated(reason = "use `align_of_val` instead", since = "1.2.0")]
 pub fn min_align_of_val<T: ?Sized>(val: &T) -> usize {
     unsafe { intrinsics::min_align_of_val(val) }
 }
@@ -193,7 +193,7 @@ pub fn min_align_of_val<T: ?Sized>(val: &T) -> usize {
 /// assert_eq!(4, mem::align_of::<i32>());
 /// ```
 #[inline]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub fn align_of<T>() -> usize {
     unsafe { intrinsics::min_align_of::<T>() }
 }
@@ -208,7 +208,7 @@ pub fn align_of<T>() -> usize {
 /// assert_eq!(4, mem::align_of_val(&5i32));
 /// ```
 #[inline]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub fn align_of_val<T: ?Sized>(val: &T) -> usize {
     unsafe { intrinsics::min_align_of_val(val) }
 }
@@ -232,7 +232,7 @@ pub fn align_of_val<T: ?Sized>(val: &T) -> usize {
 /// let x: i32 = unsafe { mem::zeroed() };
 /// ```
 #[inline]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub unsafe fn zeroed<T>() -> T {
     intrinsics::init()
 }
@@ -250,7 +250,7 @@ pub unsafe fn zeroed<T>() -> T {
 /// This function is expected to be deprecated with the transition
 /// to non-zeroing drop.
 #[inline]
-
+#[unstable(feature = "filling_drop", issue = "5016")]
 pub unsafe fn dropped<T>() -> T {
     #[inline(always)]
     unsafe fn dropped_impl<T>() -> T { intrinsics::init_dropped() }
@@ -338,7 +338,7 @@ pub unsafe fn dropped<T>() -> T {
 /// println!("{:?}", &data[0]);
 /// ```
 #[inline]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub unsafe fn uninitialized<T>() -> T {
     intrinsics::uninit()
 }
@@ -360,7 +360,7 @@ pub unsafe fn uninitialized<T>() -> T {
 /// assert_eq!(5, *y);
 /// ```
 #[inline]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub fn swap<T>(x: &mut T, y: &mut T) {
     unsafe {
         // Give ourselves some scratch space to work with
@@ -427,7 +427,7 @@ pub fn swap<T>(x: &mut T, y: &mut T) {
 /// }
 /// ```
 #[inline]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub fn replace<T>(dest: &mut T, mut src: T) -> T {
     swap(dest, &mut src);
     src
@@ -511,7 +511,7 @@ pub fn replace<T>(dest: &mut T, mut src: T) -> T {
 /// ```
 ///
 #[inline]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub fn drop<T>(_x: T) { }
 
 macro_rules! repeat_u8_as_u32 {
@@ -534,22 +534,22 @@ macro_rules! repeat_u8_as_u64 {
 // But having the sign bit set is a pain, so 0x1d is probably better.
 //
 // And of course, 0x00 brings back the old world of zero'ing on drop.
-
+#[unstable(feature = "filling_drop", issue = "5016")]
 #[allow(missing_docs)]
 pub const POST_DROP_U8: u8 = 0x1d;
-
+#[unstable(feature = "filling_drop", issue = "5016")]
 #[allow(missing_docs)]
 pub const POST_DROP_U32: u32 = repeat_u8_as_u32!(POST_DROP_U8);
-
+#[unstable(feature = "filling_drop", issue = "5016")]
 #[allow(missing_docs)]
 pub const POST_DROP_U64: u64 = repeat_u8_as_u64!(POST_DROP_U8);
 
 #[cfg(target_pointer_width = "32")]
-
+#[unstable(feature = "filling_drop", issue = "5016")]
 #[allow(missing_docs)]
 pub const POST_DROP_USIZE: usize = POST_DROP_U32 as usize;
 #[cfg(target_pointer_width = "64")]
-
+#[unstable(feature = "filling_drop", issue = "5016")]
 #[allow(missing_docs)]
 pub const POST_DROP_USIZE: usize = POST_DROP_U64 as usize;
 
@@ -576,7 +576,7 @@ pub const POST_DROP_USIZE: usize = POST_DROP_U64 as usize;
 /// assert_eq!(1, one);
 /// ```
 #[inline]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub unsafe fn transmute_copy<T, U>(src: &T) -> U {
     // FIXME(#23542) Replace with type ascription.
     #![allow(trivial_casts)]

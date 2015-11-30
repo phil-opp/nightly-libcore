@@ -88,7 +88,9 @@
 //! turned into {positive,negative} {zero,infinity}.
 
 #![doc(hidden)]
-
+#![unstable(feature = "dec2flt",
+            reason = "internal routines only exposed for testing",
+            issue = "0")]
 
 use prelude::v1::*;
 use fmt;
@@ -108,7 +110,7 @@ pub mod parse;
 
 macro_rules! from_str_float_impl {
     ($t:ty, $func:ident) => {
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl FromStr for $t {
             type Err = ParseFloatError;
 
@@ -149,7 +151,7 @@ from_str_float_impl!(f64, to_f64);
 
 /// An error which can be returned when parsing a float.
 #[derive(Debug, Clone, PartialEq)]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub struct ParseFloatError {
     kind: FloatErrorKind
 }
@@ -161,7 +163,10 @@ enum FloatErrorKind {
 }
 
 impl ParseFloatError {
-    
+    #[unstable(feature = "int_error_internals",
+               reason = "available through Error trait and this method should \
+                         not be exposed publicly",
+               issue = "0")]
     #[doc(hidden)]
     pub fn __description(&self) -> &str {
         match self.kind {
@@ -171,7 +176,7 @@ impl ParseFloatError {
     }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl fmt::Display for ParseFloatError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.__description().fmt(f)

@@ -9,7 +9,9 @@
 // except according to those terms.
 
 //! Exposes the NonZero lang item which provides optimization hints.
-
+#![unstable(feature = "nonzero",
+            reason = "needs an RFC to flesh out the design",
+            issue = "27730")]
 
 use marker::Sized;
 use ops::{CoerceUnsized, Deref};

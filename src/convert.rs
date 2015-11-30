@@ -19,7 +19,7 @@
 //!
 //! See each trait for usage examples.
 
-
+#![stable(feature = "rust1", since = "1.0.0")]
 
 use marker::Sized;
 
@@ -45,18 +45,18 @@ use marker::Sized;
 /// let s = "hello".to_string();
 /// is_hello(s);
 /// ```
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub trait AsRef<T: ?Sized> {
     /// Performs the conversion.
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn as_ref(&self) -> &T;
 }
 
 /// A cheap, mutable reference-to-mutable reference conversion.
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub trait AsMut<T: ?Sized> {
     /// Performs the conversion.
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn as_mut(&mut self) -> &mut T;
 }
 
@@ -75,10 +75,10 @@ pub trait AsMut<T: ?Sized> {
 /// let s = "hello".to_string();
 /// is_hello(s);
 /// ```
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub trait Into<T>: Sized {
     /// Performs the conversion.
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn into(self) -> T;
 }
 
@@ -94,10 +94,10 @@ pub trait Into<T>: Sized {
 ///
 /// assert_eq!(string, other_string);
 /// ```
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub trait From<T>: Sized {
     /// Performs the conversion.
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn from(T) -> Self;
 }
 
@@ -106,7 +106,7 @@ pub trait From<T>: Sized {
 ////////////////////////////////////////////////////////////////////////////////
 
 // As lifts over &
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T: ?Sized, U: ?Sized> AsRef<U> for &'a T where T: AsRef<U> {
     fn as_ref(&self) -> &U {
         <T as AsRef<U>>::as_ref(*self)
@@ -114,7 +114,7 @@ impl<'a, T: ?Sized, U: ?Sized> AsRef<U> for &'a T where T: AsRef<U> {
 }
 
 // As lifts over &mut
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T: ?Sized, U: ?Sized> AsRef<U> for &'a mut T where T: AsRef<U> {
     fn as_ref(&self) -> &U {
         <T as AsRef<U>>::as_ref(*self)
@@ -130,7 +130,7 @@ impl<'a, T: ?Sized, U: ?Sized> AsRef<U> for &'a mut T where T: AsRef<U> {
 // }
 
 // AsMut lifts over &mut
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T: ?Sized, U: ?Sized> AsMut<U> for &'a mut T where T: AsMut<U> {
     fn as_mut(&mut self) -> &mut U {
         (*self).as_mut()
@@ -146,7 +146,7 @@ impl<'a, T: ?Sized, U: ?Sized> AsMut<U> for &'a mut T where T: AsMut<U> {
 // }
 
 // From implies Into
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<T, U> Into<U> for T where U: From<T> {
     fn into(self) -> U {
         U::from(self)
@@ -154,7 +154,7 @@ impl<T, U> Into<U> for T where U: From<T> {
 }
 
 // From (and thus Into) is reflexive
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<T> From<T> for T {
     fn from(t: T) -> T { t }
 }
@@ -163,21 +163,21 @@ impl<T> From<T> for T {
 // CONCRETE IMPLS
 ////////////////////////////////////////////////////////////////////////////////
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<T> AsRef<[T]> for [T] {
     fn as_ref(&self) -> &[T] {
         self
     }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<T> AsMut<[T]> for [T] {
     fn as_mut(&mut self) -> &mut [T] {
         self
     }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl AsRef<str> for str {
     #[inline]
     fn as_ref(&self) -> &str {

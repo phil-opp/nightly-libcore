@@ -54,7 +54,7 @@ impl<'a, 'b: 'a> fmt::Write for PadAdapter<'a, 'b> {
 ///
 /// Constructed by the `Formatter::debug_struct` method.
 #[must_use]
-
+#[stable(feature = "debug_builders", since = "1.2.0")]
 pub struct DebugStruct<'a, 'b: 'a> {
     fmt: &'a mut fmt::Formatter<'b>,
     result: fmt::Result,
@@ -74,7 +74,7 @@ pub fn debug_struct_new<'a, 'b>(fmt: &'a mut fmt::Formatter<'b>,
 
 impl<'a, 'b: 'a> DebugStruct<'a, 'b> {
     /// Adds a new field to the generated struct output.
-    
+    #[stable(feature = "debug_builders", since = "1.2.0")]
     pub fn field(&mut self, name: &str, value: &fmt::Debug) -> &mut DebugStruct<'a, 'b> {
         self.result = self.result.and_then(|_| {
             let prefix = if self.has_fields {
@@ -97,7 +97,7 @@ impl<'a, 'b: 'a> DebugStruct<'a, 'b> {
     }
 
     /// Finishes output and returns any error encountered.
-    
+    #[stable(feature = "debug_builders", since = "1.2.0")]
     pub fn finish(&mut self) -> fmt::Result {
         if self.has_fields {
             self.result = self.result.and_then(|_| {
@@ -120,7 +120,7 @@ impl<'a, 'b: 'a> DebugStruct<'a, 'b> {
 ///
 /// Constructed by the `Formatter::debug_tuple` method.
 #[must_use]
-
+#[stable(feature = "debug_builders", since = "1.2.0")]
 pub struct DebugTuple<'a, 'b: 'a> {
     fmt: &'a mut fmt::Formatter<'b>,
     result: fmt::Result,
@@ -138,7 +138,7 @@ pub fn debug_tuple_new<'a, 'b>(fmt: &'a mut fmt::Formatter<'b>, name: &str) -> D
 
 impl<'a, 'b: 'a> DebugTuple<'a, 'b> {
     /// Adds a new field to the generated tuple struct output.
-    
+    #[stable(feature = "debug_builders", since = "1.2.0")]
     pub fn field(&mut self, value: &fmt::Debug) -> &mut DebugTuple<'a, 'b> {
         self.result = self.result.and_then(|_| {
             let (prefix, space) = if self.has_fields {
@@ -160,7 +160,7 @@ impl<'a, 'b: 'a> DebugTuple<'a, 'b> {
     }
 
     /// Finishes output and returns any error encountered.
-    
+    #[stable(feature = "debug_builders", since = "1.2.0")]
     pub fn finish(&mut self) -> fmt::Result {
         if self.has_fields {
             self.result = self.result.and_then(|_| {
@@ -179,7 +179,8 @@ impl<'a, 'b: 'a> DebugTuple<'a, 'b> {
     }
 
     /// Returns the wrapped `Formatter`.
-    
+    #[unstable(feature = "debug_builder_formatter", reason = "recently added",
+               issue = "27782")]
     pub fn formatter(&mut self) -> &mut fmt::Formatter<'b> {
         &mut self.fmt
     }
@@ -233,7 +234,7 @@ impl<'a, 'b: 'a> DebugInner<'a, 'b> {
 ///
 /// Constructed by the `Formatter::debug_set` method.
 #[must_use]
-
+#[stable(feature = "debug_builders", since = "1.2.0")]
 pub struct DebugSet<'a, 'b: 'a> {
     inner: DebugInner<'a, 'b>,
 }
@@ -251,14 +252,14 @@ pub fn debug_set_new<'a, 'b>(fmt: &'a mut fmt::Formatter<'b>) -> DebugSet<'a, 'b
 
 impl<'a, 'b: 'a> DebugSet<'a, 'b> {
     /// Adds a new entry to the set output.
-    
+    #[stable(feature = "debug_builders", since = "1.2.0")]
     pub fn entry(&mut self, entry: &fmt::Debug) -> &mut DebugSet<'a, 'b> {
         self.inner.entry(entry);
         self
     }
 
     /// Adds the contents of an iterator of entries to the set output.
-    
+    #[stable(feature = "debug_builders", since = "1.2.0")]
     pub fn entries<D, I>(&mut self, entries: I) -> &mut DebugSet<'a, 'b>
         where D: fmt::Debug,
               I: IntoIterator<Item = D>
@@ -270,7 +271,7 @@ impl<'a, 'b: 'a> DebugSet<'a, 'b> {
     }
 
     /// Finishes output and returns any error encountered.
-    
+    #[stable(feature = "debug_builders", since = "1.2.0")]
     pub fn finish(&mut self) -> fmt::Result {
         self.inner.finish();
         self.inner.result.and_then(|_| self.inner.fmt.write_str("}"))
@@ -281,7 +282,7 @@ impl<'a, 'b: 'a> DebugSet<'a, 'b> {
 ///
 /// Constructed by the `Formatter::debug_list` method.
 #[must_use]
-
+#[stable(feature = "debug_builders", since = "1.2.0")]
 pub struct DebugList<'a, 'b: 'a> {
     inner: DebugInner<'a, 'b>,
 }
@@ -299,14 +300,14 @@ pub fn debug_list_new<'a, 'b>(fmt: &'a mut fmt::Formatter<'b>) -> DebugList<'a, 
 
 impl<'a, 'b: 'a> DebugList<'a, 'b> {
     /// Adds a new entry to the list output.
-    
+    #[stable(feature = "debug_builders", since = "1.2.0")]
     pub fn entry(&mut self, entry: &fmt::Debug) -> &mut DebugList<'a, 'b> {
         self.inner.entry(entry);
         self
     }
 
     /// Adds the contents of an iterator of entries to the list output.
-    
+    #[stable(feature = "debug_builders", since = "1.2.0")]
     pub fn entries<D, I>(&mut self, entries: I) -> &mut DebugList<'a, 'b>
         where D: fmt::Debug,
               I: IntoIterator<Item = D>
@@ -318,7 +319,7 @@ impl<'a, 'b: 'a> DebugList<'a, 'b> {
     }
 
     /// Finishes output and returns any error encountered.
-    
+    #[stable(feature = "debug_builders", since = "1.2.0")]
     pub fn finish(&mut self) -> fmt::Result {
         self.inner.finish();
         self.inner.result.and_then(|_| self.inner.fmt.write_str("]"))
@@ -329,7 +330,7 @@ impl<'a, 'b: 'a> DebugList<'a, 'b> {
 ///
 /// Constructed by the `Formatter::debug_map` method.
 #[must_use]
-
+#[stable(feature = "debug_builders", since = "1.2.0")]
 pub struct DebugMap<'a, 'b: 'a> {
     fmt: &'a mut fmt::Formatter<'b>,
     result: fmt::Result,
@@ -347,7 +348,7 @@ pub fn debug_map_new<'a, 'b>(fmt: &'a mut fmt::Formatter<'b>) -> DebugMap<'a, 'b
 
 impl<'a, 'b: 'a> DebugMap<'a, 'b> {
     /// Adds a new entry to the map output.
-    
+    #[stable(feature = "debug_builders", since = "1.2.0")]
     pub fn entry(&mut self, key: &fmt::Debug, value: &fmt::Debug) -> &mut DebugMap<'a, 'b> {
         self.result = self.result.and_then(|_| {
             if self.is_pretty() {
@@ -374,7 +375,7 @@ impl<'a, 'b: 'a> DebugMap<'a, 'b> {
     }
 
     /// Adds the contents of an iterator of entries to the map output.
-    
+    #[stable(feature = "debug_builders", since = "1.2.0")]
     pub fn entries<K, V, I>(&mut self, entries: I) -> &mut DebugMap<'a, 'b>
         where K: fmt::Debug,
               V: fmt::Debug,
@@ -387,7 +388,7 @@ impl<'a, 'b: 'a> DebugMap<'a, 'b> {
     }
 
     /// Finishes output and returns any error encountered.
-    
+    #[stable(feature = "debug_builders", since = "1.2.0")]
     pub fn finish(&mut self) -> fmt::Result {
         let prefix = if self.is_pretty() && self.has_fields {
             "\n"

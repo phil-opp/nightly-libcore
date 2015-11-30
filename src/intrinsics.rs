@@ -39,7 +39,11 @@
 //!   guaranteed to happen in order. This is the standard mode for working
 //!   with atomic types and is equivalent to Java's `volatile`.
 
-
+#![unstable(feature = "core_intrinsics",
+            reason = "intrinsics are unlikely to ever be stabilized, instead \
+                      they should be used through stabilized interfaces \
+                      in the rest of the standard library",
+            issue = "0")]
 #![allow(missing_docs)]
 
 use marker::Sized;
@@ -209,7 +213,7 @@ extern "rust-intrinsic" {
     ///
     /// This has all the same safety problems as `ptr::read` with respect to
     /// invalid pointers, types, and double drops.
-    
+    #[unstable(feature = "drop_in_place", reason = "just exposed, needs FCP", issue = "27908")]
     pub fn drop_in_place<T: ?Sized>(to_drop: *mut T);
 
     /// Gets a static string slice containing the name of a type.
@@ -265,7 +269,7 @@ extern "rust-intrinsic" {
     /// let array: &[u8] = unsafe { mem::transmute("Rust") };
     /// assert_eq!(array, [82, 117, 115, 116]);
     /// ```
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub fn transmute<T, U>(e: T) -> U;
 
     /// Gives the address for the return value of the enclosing function.
@@ -347,7 +351,7 @@ extern "rust-intrinsic" {
     ///     }
     /// }
     /// ```
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub fn copy_nonoverlapping<T>(src: *const T, dst: *mut T, count: usize);
 
     /// Copies `count * size_of<T>` bytes from `src` to `dst`. The source
@@ -378,12 +382,12 @@ extern "rust-intrinsic" {
     /// }
     /// ```
     ///
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub fn copy<T>(src: *const T, dst: *mut T, count: usize);
 
     /// Invokes memset on the specified pointer, setting `count * size_of::<T>()`
     /// bytes of memory starting at `dst` to `val`.
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub fn write_bytes<T>(dst: *mut T, val: u8, count: usize);
 
     /// Equivalent to the appropriate `llvm.memcpy.p0i8.0i8.*` intrinsic, with

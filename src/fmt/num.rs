@@ -140,7 +140,9 @@ radix! { UpperHex, 16, "0x", x @  0 ...  9 => b'0' + x,
 
 /// A radix with in the range of `2..36`.
 #[derive(Clone, Copy, PartialEq)]
-
+#[unstable(feature = "fmt_radix",
+           reason = "may be renamed or move to a different module",
+           issue = "27728")]
 pub struct Radix {
     base: u8,
 }
@@ -168,7 +170,9 @@ impl GenericRadix for Radix {
 }
 
 /// A helper type for formatting radixes.
-
+#[unstable(feature = "fmt_radix",
+           reason = "may be renamed or move to a different module",
+           issue = "27728")]
 #[derive(Copy, Clone)]
 pub struct RadixFmt<T, R>(T, R);
 
@@ -182,20 +186,22 @@ pub struct RadixFmt<T, R>(T, R);
 /// use std::fmt::radix;
 /// assert_eq!(format!("{}", radix(55, 36)), "1j".to_string());
 /// ```
-
+#[unstable(feature = "fmt_radix",
+           reason = "may be renamed or move to a different module",
+           issue = "27728")]
 pub fn radix<T>(x: T, base: u8) -> RadixFmt<T, Radix> {
     RadixFmt(x, Radix::new(base))
 }
 
 macro_rules! radix_fmt {
     ($T:ty as $U:ty, $fmt:ident) => {
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl fmt::Debug for RadixFmt<$T, Radix> {
             fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
                 fmt::Display::fmt(self, f)
             }
         }
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl fmt::Display for RadixFmt<$T, Radix> {
             fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
                 match *self { RadixFmt(ref x, radix) => radix.$fmt(*x as $U, f) }
@@ -206,7 +212,7 @@ macro_rules! radix_fmt {
 
 macro_rules! int_base {
     ($Trait:ident for $T:ident as $U:ident -> $Radix:ident) => {
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl fmt::$Trait for $T {
             fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
                 $Radix.fmt_int(*self as $U, f)
@@ -217,7 +223,7 @@ macro_rules! int_base {
 
 macro_rules! debug {
     ($T:ident) => {
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl fmt::Debug for $T {
             fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
                 fmt::Display::fmt(self, f)
@@ -258,7 +264,7 @@ const DEC_DIGITS_LUT: &'static[u8] =
 
 macro_rules! impl_Display {
     ($($t:ident),*: $conv_fn:ident) => ($(
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     impl fmt::Display for $t {
         #[allow(unused_comparisons)]
         fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

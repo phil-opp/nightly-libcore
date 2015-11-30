@@ -13,7 +13,9 @@
 // This module is only for dec2flt and flt2dec, and only public because of libcoretest.
 // It is not intended to ever be stabilized.
 #![doc(hidden)]
-
+#![unstable(feature = "core_private_diy_float",
+            reason = "internal routines only exposed for testing",
+            issue = "0")]
 
 /// A custom 64-bit floating point type, representing `f * 2^e`.
 #[derive(Copy, Clone, Debug)]

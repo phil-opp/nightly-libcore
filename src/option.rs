@@ -141,7 +141,7 @@
 //! }
 //! ```
 
-
+#![stable(feature = "rust1", since = "1.0.0")]
 
 use self::Option::*;
 
@@ -163,13 +163,13 @@ use slice;
 
 /// The `Option` type. See [the module level documentation](index.html) for more.
 #[derive(Clone, Copy, PartialEq, PartialOrd, Eq, Ord, Debug, Hash)]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub enum Option<T> {
     /// No value
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     None,
     /// Some value `T`
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     Some(T)
 }
 
@@ -194,7 +194,7 @@ impl<T> Option<T> {
     /// assert_eq!(x.is_some(), false);
     /// ```
     #[inline]
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub fn is_some(&self) -> bool {
         match *self {
             Some(_) => true,
@@ -214,7 +214,7 @@ impl<T> Option<T> {
     /// assert_eq!(x.is_none(), true);
     /// ```
     #[inline]
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub fn is_none(&self) -> bool {
         !self.is_some()
     }
@@ -240,7 +240,7 @@ impl<T> Option<T> {
     /// println!("still can print num_as_str: {:?}", num_as_str);
     /// ```
     #[inline]
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub fn as_ref(&self) -> Option<&T> {
         match *self {
             Some(ref x) => Some(x),
@@ -261,7 +261,7 @@ impl<T> Option<T> {
     /// assert_eq!(x, Some(42));
     /// ```
     #[inline]
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub fn as_mut(&mut self) -> Option<&mut T> {
         match *self {
             Some(ref mut x) => Some(x),
@@ -287,8 +287,10 @@ impl<T> Option<T> {
     /// assert_eq!(x, Some("Dirt"));
     /// ```
     #[inline]
-    
-    
+    #[unstable(feature = "as_slice",
+               reason = "waiting for mut conventions",
+               issue = "27776")]
+    #[rustc_deprecated(since = "1.4.0", reason = "niche API, unclear of usefulness")]
     #[allow(deprecated)]
     pub fn as_mut_slice(&mut self) -> &mut [T] {
         match *self {
@@ -326,7 +328,7 @@ impl<T> Option<T> {
     /// x.expect("the world is ending"); // panics with `the world is ending`
     /// ```
     #[inline]
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub fn expect(self, msg: &str) -> T {
         match self {
             Some(val) => val,
@@ -358,7 +360,7 @@ impl<T> Option<T> {
     /// assert_eq!(x.unwrap(), "air"); // fails
     /// ```
     #[inline]
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub fn unwrap(self) -> T {
         match self {
             Some(val) => val,
@@ -375,7 +377,7 @@ impl<T> Option<T> {
     /// assert_eq!(None.unwrap_or("bike"), "bike");
     /// ```
     #[inline]
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub fn unwrap_or(self, def: T) -> T {
         match self {
             Some(x) => x,
@@ -393,7 +395,7 @@ impl<T> Option<T> {
     /// assert_eq!(None.unwrap_or_else(|| 2 * k), 20);
     /// ```
     #[inline]
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub fn unwrap_or_else<F: FnOnce() -> T>(self, f: F) -> T {
         match self {
             Some(x) => x,
@@ -419,7 +421,7 @@ impl<T> Option<T> {
     /// assert_eq!(maybe_some_len, Some(13));
     /// ```
     #[inline]
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub fn map<U, F: FnOnce(T) -> U>(self, f: F) -> Option<U> {
         match self {
             Some(x) => Some(f(x)),
@@ -440,7 +442,7 @@ impl<T> Option<T> {
     /// assert_eq!(x.map_or(42, |v| v.len()), 42);
     /// ```
     #[inline]
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub fn map_or<U, F: FnOnce(T) -> U>(self, default: U, f: F) -> U {
         match self {
             Some(t) => f(t),
@@ -463,7 +465,7 @@ impl<T> Option<T> {
     /// assert_eq!(x.map_or_else(|| 2 * k, |v| v.len()), 42);
     /// ```
     #[inline]
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub fn map_or_else<U, D: FnOnce() -> U, F: FnOnce(T) -> U>(self, default: D, f: F) -> U {
         match self {
             Some(t) => f(t),
@@ -484,7 +486,7 @@ impl<T> Option<T> {
     /// assert_eq!(x.ok_or(0), Err(0));
     /// ```
     #[inline]
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub fn ok_or<E>(self, err: E) -> Result<T, E> {
         match self {
             Some(v) => Ok(v),
@@ -505,7 +507,7 @@ impl<T> Option<T> {
     /// assert_eq!(x.ok_or_else(|| 0), Err(0));
     /// ```
     #[inline]
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub fn ok_or_else<E, F: FnOnce() -> E>(self, err: F) -> Result<T, E> {
         match self {
             Some(v) => Ok(v),
@@ -529,7 +531,7 @@ impl<T> Option<T> {
     /// assert_eq!(x.iter().next(), None);
     /// ```
     #[inline]
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub fn iter(&self) -> Iter<T> {
         Iter { inner: Item { opt: self.as_ref() } }
     }
@@ -550,7 +552,7 @@ impl<T> Option<T> {
     /// assert_eq!(x.iter_mut().next(), None);
     /// ```
     #[inline]
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub fn iter_mut(&mut self) -> IterMut<T> {
         IterMut { inner: Item { opt: self.as_mut() } }
     }
@@ -581,7 +583,7 @@ impl<T> Option<T> {
     /// assert_eq!(x.and(y), None);
     /// ```
     #[inline]
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub fn and<U>(self, optb: Option<U>) -> Option<U> {
         match self {
             Some(_) => optb,
@@ -606,7 +608,7 @@ impl<T> Option<T> {
     /// assert_eq!(None.and_then(sq).and_then(sq), None);
     /// ```
     #[inline]
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub fn and_then<U, F: FnOnce(T) -> Option<U>>(self, f: F) -> Option<U> {
         match self {
             Some(x) => f(x),
@@ -636,7 +638,7 @@ impl<T> Option<T> {
     /// assert_eq!(x.or(y), None);
     /// ```
     #[inline]
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub fn or(self, optb: Option<T>) -> Option<T> {
         match self {
             Some(_) => self,
@@ -658,7 +660,7 @@ impl<T> Option<T> {
     /// assert_eq!(None.or_else(nobody), None);
     /// ```
     #[inline]
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub fn or_else<F: FnOnce() -> Option<T>>(self, f: F) -> Option<T> {
         match self {
             Some(_) => self,
@@ -684,15 +686,16 @@ impl<T> Option<T> {
     /// assert_eq!(x, None);
     /// ```
     #[inline]
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub fn take(&mut self) -> Option<T> {
         mem::replace(self, None)
     }
 
     /// Converts from `Option<T>` to `&[T]` (without copying)
     #[inline]
-    
-    
+    #[unstable(feature = "as_slice", reason = "unsure of the utility here",
+               issue = "27776")]
+    #[rustc_deprecated(since = "1.4.0", reason = "niche API, unclear of usefulness")]
     #[allow(deprecated)]
     pub fn as_slice(&self) -> &[T] {
         match *self {
@@ -708,7 +711,7 @@ impl<T> Option<T> {
 impl<'a, T: Clone> Option<&'a T> {
     /// Maps an `Option<&T>` to an `Option<T>` by cloning the contents of the
     /// option.
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub fn cloned(self) -> Option<T> {
         self.map(|t| t.clone())
     }
@@ -738,7 +741,7 @@ impl<T: Default> Option<T> {
     /// assert_eq!(0, bad_year);
     /// ```
     #[inline]
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub fn unwrap_or_default(self) -> T {
         match self {
             Some(x) => x,
@@ -751,13 +754,13 @@ impl<T: Default> Option<T> {
 // Trait implementations
 /////////////////////////////////////////////////////////////////////////////
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<T> Default for Option<T> {
     #[inline]
     fn default() -> Option<T> { None }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<T> IntoIterator for Option<T> {
     type Item = T;
     type IntoIter = IntoIter<T>;
@@ -781,7 +784,7 @@ impl<T> IntoIterator for Option<T> {
     }
 }
 
-
+#[stable(since = "1.4.0", feature = "option_iter")]
 impl<'a, T> IntoIterator for &'a Option<T> {
     type Item = &'a T;
     type IntoIter = Iter<'a, T>;
@@ -791,7 +794,7 @@ impl<'a, T> IntoIterator for &'a Option<T> {
     }
 }
 
-
+#[stable(since = "1.4.0", feature = "option_iter")]
 impl<'a, T> IntoIterator for &'a mut Option<T> {
     type Item = &'a mut T;
     type IntoIter = IterMut<'a, T>;
@@ -837,10 +840,10 @@ impl<A> DoubleEndedIterator for Item<A> {
 impl<A> ExactSizeIterator for Item<A> {}
 
 /// An iterator over a reference of the contained item in an Option.
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub struct Iter<'a, A: 'a> { inner: Item<&'a A> }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, A> Iterator for Iter<'a, A> {
     type Item = &'a A;
 
@@ -850,16 +853,16 @@ impl<'a, A> Iterator for Iter<'a, A> {
     fn size_hint(&self) -> (usize, Option<usize>) { self.inner.size_hint() }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, A> DoubleEndedIterator for Iter<'a, A> {
     #[inline]
     fn next_back(&mut self) -> Option<&'a A> { self.inner.next_back() }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, A> ExactSizeIterator for Iter<'a, A> {}
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, A> Clone for Iter<'a, A> {
     fn clone(&self) -> Iter<'a, A> {
         Iter { inner: self.inner.clone() }
@@ -867,10 +870,10 @@ impl<'a, A> Clone for Iter<'a, A> {
 }
 
 /// An iterator over a mutable reference of the contained item in an Option.
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub struct IterMut<'a, A: 'a> { inner: Item<&'a mut A> }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, A> Iterator for IterMut<'a, A> {
     type Item = &'a mut A;
 
@@ -880,21 +883,21 @@ impl<'a, A> Iterator for IterMut<'a, A> {
     fn size_hint(&self) -> (usize, Option<usize>) { self.inner.size_hint() }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, A> DoubleEndedIterator for IterMut<'a, A> {
     #[inline]
     fn next_back(&mut self) -> Option<&'a mut A> { self.inner.next_back() }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, A> ExactSizeIterator for IterMut<'a, A> {}
 
 /// An iterator over the item contained inside an Option.
 #[derive(Clone)]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub struct IntoIter<A> { inner: Item<A> }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<A> Iterator for IntoIter<A> {
     type Item = A;
 
@@ -904,20 +907,20 @@ impl<A> Iterator for IntoIter<A> {
     fn size_hint(&self) -> (usize, Option<usize>) { self.inner.size_hint() }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<A> DoubleEndedIterator for IntoIter<A> {
     #[inline]
     fn next_back(&mut self) -> Option<A> { self.inner.next_back() }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<A> ExactSizeIterator for IntoIter<A> {}
 
 /////////////////////////////////////////////////////////////////////////////
 // FromIterator
 /////////////////////////////////////////////////////////////////////////////
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<A, V: FromIterator<A>> FromIterator<Option<A>> for Option<V> {
     /// Takes each element in the `Iterator`: if it is `None`, no further
     /// elements are taken, and the `None` is returned. Should no `None` occur, a

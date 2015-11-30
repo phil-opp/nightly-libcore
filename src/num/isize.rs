@@ -12,7 +12,7 @@
 //!
 //! *[See also the `isize` primitive type](../primitive.isize.html).*
 
-
+#![stable(feature = "rust1", since = "1.0.0")]
 
 #[cfg(target_pointer_width = "32")]
 int_module! { isize, 32 }

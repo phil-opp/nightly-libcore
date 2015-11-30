@@ -12,6 +12,6 @@
 //!
 //! *[See also the `u64` primitive type](../primitive.u64.html).*
 
-
+#![stable(feature = "rust1", since = "1.0.0")]
 
 uint_module! { u64, i64, 64 }

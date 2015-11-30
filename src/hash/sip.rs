@@ -28,7 +28,7 @@ use super::Hasher;
 /// strong, this implementation has not been reviewed for such purposes.
 /// As such, all cryptographic uses of this implementation are strongly
 /// discouraged.
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub struct SipHasher {
     k0: u64,
     k1: u64,
@@ -104,14 +104,14 @@ macro_rules! compress {
 impl SipHasher {
     /// Creates a new `SipHasher` with the two initial keys set to 0.
     #[inline]
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub fn new() -> SipHasher {
         SipHasher::new_with_keys(0, 0)
     }
 
     /// Creates a `SipHasher` that is keyed off the provided keys.
     #[inline]
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub fn new_with_keys(key0: u64, key1: u64) -> SipHasher {
         let mut state = SipHasher {
             k0: key0,
@@ -139,7 +139,7 @@ impl SipHasher {
     }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl Hasher for SipHasher {
     #[inline]
     fn write(&mut self, msg: &[u8]) {
@@ -210,7 +210,7 @@ impl Hasher for SipHasher {
     }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl Clone for SipHasher {
     #[inline]
     fn clone(&self) -> SipHasher {
@@ -228,7 +228,7 @@ impl Clone for SipHasher {
     }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl Default for SipHasher {
     fn default() -> SipHasher {
         SipHasher::new()

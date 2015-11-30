@@ -14,7 +14,10 @@
 //!
 //! *[See also the array primitive type](../primitive.array.html).*
 
-
+#![unstable(feature = "fixed_size_array",
+            reason = "traits and impls are better expressed through generic \
+                      integer constants",
+            issue = "27778")]
 
 use borrow::{Borrow, BorrowMut};
 use clone::Clone;
@@ -77,42 +80,42 @@ macro_rules! array_impls {
                 }
             }
 
-            
+            #[stable(feature = "array_borrow", since = "1.4.0")]
             impl<T> Borrow<[T]> for [T; $N] {
                 fn borrow(&self) -> &[T] {
                     self
                 }
             }
 
-            
+            #[stable(feature = "array_borrow", since = "1.4.0")]
             impl<T> BorrowMut<[T]> for [T; $N] {
                 fn borrow_mut(&mut self) -> &mut [T] {
                     self
                 }
             }
 
-            
+            #[stable(feature = "rust1", since = "1.0.0")]
             impl<T:Copy> Clone for [T; $N] {
                 fn clone(&self) -> [T; $N] {
                     *self
                 }
             }
 
-            
+            #[stable(feature = "rust1", since = "1.0.0")]
             impl<T: Hash> Hash for [T; $N] {
                 fn hash<H: hash::Hasher>(&self, state: &mut H) {
                     Hash::hash(&self[..], state)
                 }
             }
 
-            
+            #[stable(feature = "rust1", since = "1.0.0")]
             impl<T: fmt::Debug> fmt::Debug for [T; $N] {
                 fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
                     fmt::Debug::fmt(&&self[..], f)
                 }
             }
 
-            
+            #[stable(feature = "rust1", since = "1.0.0")]
             impl<'a, T> IntoIterator for &'a [T; $N] {
                 type Item = &'a T;
                 type IntoIter = Iter<'a, T>;
@@ -122,7 +125,7 @@ macro_rules! array_impls {
                 }
             }
 
-            
+            #[stable(feature = "rust1", since = "1.0.0")]
             impl<'a, T> IntoIterator for &'a mut [T; $N] {
                 type Item = &'a mut T;
                 type IntoIter = IterMut<'a, T>;
@@ -140,10 +143,10 @@ macro_rules! array_impls {
             // __impl_slice_eq2! { [A; $N], &'b [B; $N] }
             // __impl_slice_eq2! { [A; $N], &'b mut [B; $N] }
 
-            
+            #[stable(feature = "rust1", since = "1.0.0")]
             impl<T:Eq> Eq for [T; $N] { }
 
-            
+            #[stable(feature = "rust1", since = "1.0.0")]
             impl<T:PartialOrd> PartialOrd for [T; $N] {
                 #[inline]
                 fn partial_cmp(&self, other: &[T; $N]) -> Option<Ordering> {
@@ -167,7 +170,7 @@ macro_rules! array_impls {
                 }
             }
 
-            
+            #[stable(feature = "rust1", since = "1.0.0")]
             impl<T:Ord> Ord for [T; $N] {
                 #[inline]
                 fn cmp(&self, other: &[T; $N]) -> Ordering {
@@ -190,7 +193,7 @@ array_impls! {
 
 macro_rules! array_impl_default {
     {$n:expr, $t:ident $($ts:ident)*} => {
-        
+        #[stable(since = "1.4.0", feature = "array_default")]
         impl<T> Default for [T; $n] where T: Default {
             fn default() -> [T; $n] {
                 [$t::default(), $($ts::default()),*]
@@ -199,7 +202,7 @@ macro_rules! array_impl_default {
         array_impl_default!{($n - 1), $($ts)*}
     };
     {$n:expr,} => {
-        
+        #[stable(since = "1.4.0", feature = "array_default")]
         impl<T> Default for [T; $n] {
             fn default() -> [T; $n] { [] }
         }

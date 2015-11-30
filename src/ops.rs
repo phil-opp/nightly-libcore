@@ -65,7 +65,7 @@
 //! See the documentation for each trait for a minimum implementation that
 //! prints something to the screen.
 
-
+#![stable(feature = "rust1", since = "1.0.0")]
 
 use marker::{Sized, Unsize};
 use fmt;
@@ -92,10 +92,10 @@ use fmt;
 /// }
 /// ```
 #[lang = "drop"]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub trait Drop {
     /// A method called when the value goes out of scope.
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn drop(&mut self);
 }
 
@@ -103,7 +103,7 @@ pub trait Drop {
 // based on "op T" where T is expected to be `Copy`able
 macro_rules! forward_ref_unop {
     (impl $imp:ident, $method:ident for $t:ty) => {
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl<'a> $imp for &'a $t {
             type Output = <$t as $imp>::Output;
 
@@ -119,7 +119,7 @@ macro_rules! forward_ref_unop {
 // based on "T op U" where T and U are expected to be `Copy`able
 macro_rules! forward_ref_binop {
     (impl $imp:ident, $method:ident for $t:ty, $u:ty) => {
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl<'a> $imp<$u> for &'a $t {
             type Output = <$t as $imp<$u>>::Output;
 
@@ -129,7 +129,7 @@ macro_rules! forward_ref_binop {
             }
         }
 
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl<'a> $imp<&'a $u> for $t {
             type Output = <$t as $imp<$u>>::Output;
 
@@ -139,7 +139,7 @@ macro_rules! forward_ref_binop {
             }
         }
 
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl<'a, 'b> $imp<&'a $u> for &'b $t {
             type Output = <$t as $imp<$u>>::Output;
 
@@ -178,20 +178,20 @@ macro_rules! forward_ref_binop {
 /// }
 /// ```
 #[lang = "add"]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub trait Add<RHS=Self> {
     /// The resulting type after applying the `+` operator
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     type Output;
 
     /// The method for the `+` operator
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn add(self, rhs: RHS) -> Self::Output;
 }
 
 macro_rules! add_impl {
     ($($t:ty)*) => ($(
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl Add for $t {
             type Output = $t;
 
@@ -234,20 +234,20 @@ add_impl! { f32 f64 }
 /// }
 /// ```
 #[lang = "sub"]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub trait Sub<RHS=Self> {
     /// The resulting type after applying the `-` operator
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     type Output;
 
     /// The method for the `-` operator
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn sub(self, rhs: RHS) -> Self::Output;
 }
 
 macro_rules! sub_impl {
     ($($t:ty)*) => ($(
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl Sub for $t {
             type Output = $t;
 
@@ -290,20 +290,20 @@ sub_impl! { f32 f64 }
 /// }
 /// ```
 #[lang = "mul"]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub trait Mul<RHS=Self> {
     /// The resulting type after applying the `*` operator
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     type Output;
 
     /// The method for the `*` operator
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn mul(self, rhs: RHS) -> Self::Output;
 }
 
 macro_rules! mul_impl {
     ($($t:ty)*) => ($(
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl Mul for $t {
             type Output = $t;
 
@@ -346,14 +346,14 @@ mul_impl! { f32 f64 }
 /// }
 /// ```
 #[lang = "div"]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub trait Div<RHS=Self> {
     /// The resulting type after applying the `/` operator
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     type Output;
 
     /// The method for the `/` operator
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn div(self, rhs: RHS) -> Self::Output;
 }
 
@@ -361,7 +361,7 @@ macro_rules! div_impl_integer {
     ($($t:ty)*) => ($(
         /// This operation rounds towards zero, truncating any
         /// fractional part of the exact result.
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl Div for $t {
             type Output = $t;
 
@@ -377,7 +377,7 @@ div_impl_integer! { usize u8 u16 u32 u64 isize i8 i16 i32 i64 }
 
 macro_rules! div_impl_float {
     ($($t:ty)*) => ($(
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl Div for $t {
             type Output = $t;
 
@@ -419,14 +419,14 @@ div_impl_float! { f32 f64 }
 /// }
 /// ```
 #[lang = "rem"]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub trait Rem<RHS=Self> {
     /// The resulting type after applying the `%` operator
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     type Output = Self;
 
     /// The method for the `%` operator
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn rem(self, rhs: RHS) -> Self::Output;
 }
 
@@ -434,7 +434,7 @@ macro_rules! rem_impl_integer {
     ($($t:ty)*) => ($(
         /// This operation satisfies `n % d == n - (n / d) * d`.  The
         /// result has the same sign as the left operand.
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl Rem for $t {
             type Output = $t;
 
@@ -451,7 +451,7 @@ rem_impl_integer! { usize u8 u16 u32 u64 isize i8 i16 i32 i64 }
 #[cfg(not(stage0))]
 macro_rules! rem_impl_float {
     ($($t:ty)*) => ($(
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl Rem for $t {
             type Output = $t;
 
@@ -467,7 +467,7 @@ macro_rules! rem_impl_float {
 #[cfg(not(feature = "disable_float"))]
 rem_impl_float! { f32 f64 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 #[cfg(stage0)]
 impl Rem for f32 {
     type Output = f32;
@@ -489,7 +489,7 @@ impl Rem for f32 {
     }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 #[cfg(stage0)]
 impl Rem for f64 {
     type Output = f64;
@@ -533,14 +533,14 @@ forward_ref_binop! { impl Rem, rem for f32, f32 }
 /// }
 /// ```
 #[lang = "neg"]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub trait Neg {
     /// The resulting type after applying the `-` operator
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     type Output;
 
     /// The method for the unary `-` operator
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn neg(self) -> Self::Output;
 }
 
@@ -548,7 +548,7 @@ pub trait Neg {
 
 macro_rules! neg_impl_core {
     ($id:ident => $body:expr, $($t:ty)*) => ($(
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl Neg for $t {
             type Output = $t;
 
@@ -603,20 +603,20 @@ neg_impl_numeric! { f32 f64 }
 /// }
 /// ```
 #[lang = "not"]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub trait Not {
     /// The resulting type after applying the `!` operator
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     type Output;
 
     /// The method for the unary `!` operator
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn not(self) -> Self::Output;
 }
 
 macro_rules! not_impl {
     ($($t:ty)*) => ($(
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl Not for $t {
             type Output = $t;
 
@@ -657,20 +657,20 @@ not_impl! { bool usize u8 u16 u32 u64 isize i8 i16 i32 i64 }
 /// }
 /// ```
 #[lang = "bitand"]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub trait BitAnd<RHS=Self> {
     /// The resulting type after applying the `&` operator
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     type Output;
 
     /// The method for the `&` operator
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn bitand(self, rhs: RHS) -> Self::Output;
 }
 
 macro_rules! bitand_impl {
     ($($t:ty)*) => ($(
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl BitAnd for $t {
             type Output = $t;
 
@@ -711,20 +711,20 @@ bitand_impl! { bool usize u8 u16 u32 u64 isize i8 i16 i32 i64 }
 /// }
 /// ```
 #[lang = "bitor"]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub trait BitOr<RHS=Self> {
     /// The resulting type after applying the `|` operator
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     type Output;
 
     /// The method for the `|` operator
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn bitor(self, rhs: RHS) -> Self::Output;
 }
 
 macro_rules! bitor_impl {
     ($($t:ty)*) => ($(
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl BitOr for $t {
             type Output = $t;
 
@@ -765,20 +765,20 @@ bitor_impl! { bool usize u8 u16 u32 u64 isize i8 i16 i32 i64 }
 /// }
 /// ```
 #[lang = "bitxor"]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub trait BitXor<RHS=Self> {
     /// The resulting type after applying the `^` operator
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     type Output;
 
     /// The method for the `^` operator
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn bitxor(self, rhs: RHS) -> Self::Output;
 }
 
 macro_rules! bitxor_impl {
     ($($t:ty)*) => ($(
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl BitXor for $t {
             type Output = $t;
 
@@ -819,20 +819,20 @@ bitxor_impl! { bool usize u8 u16 u32 u64 isize i8 i16 i32 i64 }
 /// }
 /// ```
 #[lang = "shl"]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub trait Shl<RHS> {
     /// The resulting type after applying the `<<` operator
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     type Output;
 
     /// The method for the `<<` operator
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn shl(self, rhs: RHS) -> Self::Output;
 }
 
 macro_rules! shl_impl {
     ($t:ty, $f:ty) => (
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl Shl<$f> for $t {
             type Output = $t;
 
@@ -891,20 +891,20 @@ shl_impl_all! { u8 u16 u32 u64 usize i8 i16 i32 i64 isize }
 /// }
 /// ```
 #[lang = "shr"]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub trait Shr<RHS> {
     /// The resulting type after applying the `>>` operator
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     type Output;
 
     /// The method for the `>>` operator
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn shr(self, rhs: RHS) -> Self::Output;
 }
 
 macro_rules! shr_impl {
     ($t:ty, $f:ty) => (
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl Shr<$f> for $t {
             type Output = $t;
 
@@ -966,7 +966,7 @@ shr_impl_all! { u8 u16 u32 u64 usize i8 i16 i32 i64 isize }
 /// ```
 #[cfg(not(stage0))]
 #[lang = "add_assign"]
-
+#[unstable(feature = "op_assign_traits", reason = "recently added", issue = "28235")]
 pub trait AddAssign<Rhs=Self> {
     /// The method for the `+=` operator
     fn add_assign(&mut self, Rhs);
@@ -975,7 +975,7 @@ pub trait AddAssign<Rhs=Self> {
 #[cfg(not(stage0))]
 macro_rules! add_assign_impl {
     ($($t:ty)+) => ($(
-        
+        #[unstable(feature = "op_assign_traits", reason = "recently added", issue = "28235")]
         impl AddAssign for $t {
             #[inline]
             fn add_assign(&mut self, other: $t) { *self += other }
@@ -1018,7 +1018,7 @@ add_assign_impl! { f32 f64 }
 /// ```
 #[cfg(not(stage0))]
 #[lang = "sub_assign"]
-
+#[unstable(feature = "op_assign_traits", reason = "recently added", issue = "28235")]
 pub trait SubAssign<Rhs=Self> {
     /// The method for the `-=` operator
     fn sub_assign(&mut self, Rhs);
@@ -1027,7 +1027,7 @@ pub trait SubAssign<Rhs=Self> {
 #[cfg(not(stage0))]
 macro_rules! sub_assign_impl {
     ($($t:ty)+) => ($(
-        
+        #[unstable(feature = "op_assign_traits", reason = "recently added", issue = "28235")]
         impl SubAssign for $t {
             #[inline]
             fn sub_assign(&mut self, other: $t) { *self -= other }
@@ -1070,7 +1070,7 @@ sub_assign_impl! { f32 f64 }
 /// ```
 #[cfg(not(stage0))]
 #[lang = "mul_assign"]
-
+#[unstable(feature = "op_assign_traits", reason = "recently added", issue = "28235")]
 pub trait MulAssign<Rhs=Self> {
     /// The method for the `*=` operator
     fn mul_assign(&mut self, Rhs);
@@ -1079,7 +1079,7 @@ pub trait MulAssign<Rhs=Self> {
 #[cfg(not(stage0))]
 macro_rules! mul_assign_impl {
     ($($t:ty)+) => ($(
-        
+        #[unstable(feature = "op_assign_traits", reason = "recently added", issue = "28235")]
         impl MulAssign for $t {
             #[inline]
             fn mul_assign(&mut self, other: $t) { *self *= other }
@@ -1122,7 +1122,7 @@ mul_assign_impl! { f32 f64 }
 /// ```
 #[cfg(not(stage0))]
 #[lang = "div_assign"]
-
+#[unstable(feature = "op_assign_traits", reason = "recently added", issue = "28235")]
 pub trait DivAssign<Rhs=Self> {
     /// The method for the `/=` operator
     fn div_assign(&mut self, Rhs);
@@ -1131,7 +1131,7 @@ pub trait DivAssign<Rhs=Self> {
 #[cfg(not(stage0))]
 macro_rules! div_assign_impl {
     ($($t:ty)+) => ($(
-        
+        #[unstable(feature = "op_assign_traits", reason = "recently added", issue = "28235")]
         impl DivAssign for $t {
             #[inline]
             fn div_assign(&mut self, other: $t) { *self /= other }
@@ -1174,7 +1174,7 @@ div_assign_impl! { f32 f64 }
 /// ```
 #[cfg(not(stage0))]
 #[lang = "rem_assign"]
-
+#[unstable(feature = "op_assign_traits", reason = "recently added", issue = "28235")]
 pub trait RemAssign<Rhs=Self> {
     /// The method for the `%=` operator
     fn rem_assign(&mut self, Rhs);
@@ -1183,7 +1183,7 @@ pub trait RemAssign<Rhs=Self> {
 #[cfg(not(stage0))]
 macro_rules! rem_assign_impl {
     ($($t:ty)+) => ($(
-        
+        #[unstable(feature = "op_assign_traits", reason = "recently added", issue = "28235")]
         impl RemAssign for $t {
             #[inline]
             fn rem_assign(&mut self, other: $t) { *self %= other }
@@ -1226,7 +1226,7 @@ rem_assign_impl! { f32 f64 }
 /// ```
 #[cfg(not(stage0))]
 #[lang = "bitand_assign"]
-
+#[unstable(feature = "op_assign_traits", reason = "recently added", issue = "28235")]
 pub trait BitAndAssign<Rhs=Self> {
     /// The method for the `&` operator
     fn bitand_assign(&mut self, Rhs);
@@ -1235,7 +1235,7 @@ pub trait BitAndAssign<Rhs=Self> {
 #[cfg(not(stage0))]
 macro_rules! bitand_assign_impl {
     ($($t:ty)+) => ($(
-        
+        #[unstable(feature = "op_assign_traits", reason = "recently added", issue = "28235")]
         impl BitAndAssign for $t {
             #[inline]
             fn bitand_assign(&mut self, other: $t) { *self &= other }
@@ -1276,7 +1276,7 @@ bitand_assign_impl! { bool usize u8 u16 u32 u64 isize i8 i16 i32 i64 }
 /// ```
 #[cfg(not(stage0))]
 #[lang = "bitor_assign"]
-
+#[unstable(feature = "op_assign_traits", reason = "recently added", issue = "28235")]
 pub trait BitOrAssign<Rhs=Self> {
     /// The method for the `|=` operator
     fn bitor_assign(&mut self, Rhs);
@@ -1285,7 +1285,7 @@ pub trait BitOrAssign<Rhs=Self> {
 #[cfg(not(stage0))]
 macro_rules! bitor_assign_impl {
     ($($t:ty)+) => ($(
-        
+        #[unstable(feature = "op_assign_traits", reason = "recently added", issue = "28235")]
         impl BitOrAssign for $t {
             #[inline]
             fn bitor_assign(&mut self, other: $t) { *self |= other }
@@ -1326,7 +1326,7 @@ bitor_assign_impl! { bool usize u8 u16 u32 u64 isize i8 i16 i32 i64 }
 /// ```
 #[cfg(not(stage0))]
 #[lang = "bitxor_assign"]
-
+#[unstable(feature = "op_assign_traits", reason = "recently added", issue = "28235")]
 pub trait BitXorAssign<Rhs=Self> {
     /// The method for the `^=` operator
     fn bitxor_assign(&mut self, Rhs);
@@ -1335,7 +1335,7 @@ pub trait BitXorAssign<Rhs=Self> {
 #[cfg(not(stage0))]
 macro_rules! bitxor_assign_impl {
     ($($t:ty)+) => ($(
-        
+        #[unstable(feature = "op_assign_traits", reason = "recently added", issue = "28235")]
         impl BitXorAssign for $t {
             #[inline]
             fn bitxor_assign(&mut self, other: $t) { *self ^= other }
@@ -1376,7 +1376,7 @@ bitxor_assign_impl! { bool usize u8 u16 u32 u64 isize i8 i16 i32 i64 }
 /// ```
 #[cfg(not(stage0))]
 #[lang = "shl_assign"]
-
+#[unstable(feature = "op_assign_traits", reason = "recently added", issue = "28235")]
 pub trait ShlAssign<Rhs> {
     /// The method for the `<<=` operator
     fn shl_assign(&mut self, Rhs);
@@ -1385,7 +1385,7 @@ pub trait ShlAssign<Rhs> {
 #[cfg(not(stage0))]
 macro_rules! shl_assign_impl {
     ($t:ty, $f:ty) => (
-        
+        #[unstable(feature = "op_assign_traits", reason = "recently added", issue = "28235")]
         impl ShlAssign<$f> for $t {
             #[inline]
             fn shl_assign(&mut self, other: $f) {
@@ -1445,7 +1445,7 @@ shl_assign_impl_all! { u8 u16 u32 u64 usize i8 i16 i32 i64 isize }
 /// ```
 #[cfg(not(stage0))]
 #[lang = "shr_assign"]
-
+#[unstable(feature = "op_assign_traits", reason = "recently added", issue = "28235")]
 pub trait ShrAssign<Rhs=Self> {
     /// The method for the `>>=` operator
     fn shr_assign(&mut self, Rhs);
@@ -1454,7 +1454,7 @@ pub trait ShrAssign<Rhs=Self> {
 #[cfg(not(stage0))]
 macro_rules! shr_assign_impl {
     ($t:ty, $f:ty) => (
-        
+        #[unstable(feature = "op_assign_traits", reason = "recently added", issue = "28235")]
         impl ShrAssign<$f> for $t {
             #[inline]
             fn shr_assign(&mut self, other: $f) {
@@ -1514,14 +1514,14 @@ shr_assign_impl_all! { u8 u16 u32 u64 usize i8 i16 i32 i64 isize }
 /// ```
 #[lang = "index"]
 #[rustc_on_unimplemented = "the type `{Self}` cannot be indexed by `{Idx}`"]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub trait Index<Idx: ?Sized> {
     /// The returned type after indexing
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     type Output: ?Sized;
 
     /// The method for the indexing (`Foo[Bar]`) operation
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn index(&self, index: Idx) -> &Self::Output;
 }
 
@@ -1561,20 +1561,20 @@ pub trait Index<Idx: ?Sized> {
 /// ```
 #[lang = "index_mut"]
 #[rustc_on_unimplemented = "the type `{Self}` cannot be mutably indexed by `{Idx}`"]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub trait IndexMut<Idx: ?Sized>: Index<Idx> {
     /// The method for the indexing (`Foo[Bar]`) operation
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn index_mut(&mut self, index: Idx) -> &mut Self::Output;
 }
 
 /// An unbounded range.
 #[derive(Copy, Clone, PartialEq, Eq)]
 #[lang = "range_full"]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub struct RangeFull;
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl fmt::Debug for RangeFull {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         write!(fmt, "..")
@@ -1584,17 +1584,17 @@ impl fmt::Debug for RangeFull {
 /// A (half-open) range which is bounded at both ends.
 #[derive(Clone, PartialEq, Eq)]
 #[lang = "range"]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub struct Range<Idx> {
     /// The lower bound of the range (inclusive).
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub start: Idx,
     /// The upper bound of the range (exclusive).
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub end: Idx,
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<Idx: fmt::Debug> fmt::Debug for Range<Idx> {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         write!(fmt, "{:?}..{:?}", self.start, self.end)
@@ -1604,14 +1604,14 @@ impl<Idx: fmt::Debug> fmt::Debug for Range<Idx> {
 /// A range which is only bounded below.
 #[derive(Clone, PartialEq, Eq)]
 #[lang = "range_from"]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub struct RangeFrom<Idx> {
     /// The lower bound of the range (inclusive).
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub start: Idx,
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<Idx: fmt::Debug> fmt::Debug for RangeFrom<Idx> {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         write!(fmt, "{:?}..", self.start)
@@ -1621,14 +1621,14 @@ impl<Idx: fmt::Debug> fmt::Debug for RangeFrom<Idx> {
 /// A range which is only bounded above.
 #[derive(Copy, Clone, PartialEq, Eq)]
 #[lang = "range_to"]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub struct RangeTo<Idx> {
     /// The upper bound of the range (exclusive).
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     pub end: Idx,
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<Idx: fmt::Debug> fmt::Debug for RangeTo<Idx> {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         write!(fmt, "..{:?}", self.end)
@@ -1668,25 +1668,25 @@ impl<Idx: fmt::Debug> fmt::Debug for RangeTo<Idx> {
 /// }
 /// ```
 #[lang = "deref"]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub trait Deref {
     /// The resulting type after dereferencing
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     type Target: ?Sized;
 
     /// The method called to dereference a value
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn deref(&self) -> &Self::Target;
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T: ?Sized> Deref for &'a T {
     type Target = T;
 
     fn deref(&self) -> &T { *self }
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T: ?Sized> Deref for &'a mut T {
     type Target = T;
 
@@ -1733,52 +1733,52 @@ impl<'a, T: ?Sized> Deref for &'a mut T {
 /// }
 /// ```
 #[lang = "deref_mut"]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub trait DerefMut: Deref {
     /// The method called to mutably dereference a value
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn deref_mut(&mut self) -> &mut Self::Target;
 }
 
-
+#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T: ?Sized> DerefMut for &'a mut T {
     fn deref_mut(&mut self) -> &mut T { *self }
 }
 
 /// A version of the call operator that takes an immutable receiver.
 #[lang = "fn"]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 #[rustc_paren_sugar]
 #[fundamental] // so that regex can rely that `&str: !FnMut`
 pub trait Fn<Args> : FnMut<Args> {
     /// This is called when the call operator is used.
-    
+    #[unstable(feature = "core", issue = "27701")]
     extern "rust-call" fn call(&self, args: Args) -> Self::Output;
 }
 
 /// A version of the call operator that takes a mutable receiver.
 #[lang = "fn_mut"]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 #[rustc_paren_sugar]
 #[fundamental] // so that regex can rely that `&str: !FnMut`
 pub trait FnMut<Args> : FnOnce<Args> {
     /// This is called when the call operator is used.
-    
+    #[unstable(feature = "core", issue = "27701")]
     extern "rust-call" fn call_mut(&mut self, args: Args) -> Self::Output;
 }
 
 /// A version of the call operator that takes a by-value receiver.
 #[lang = "fn_once"]
-
+#[stable(feature = "rust1", since = "1.0.0")]
 #[rustc_paren_sugar]
 #[fundamental] // so that regex can rely that `&str: !FnMut`
 pub trait FnOnce<Args> {
     /// The returned type after the call operator is used.
-    
+    #[unstable(feature = "core", issue = "27701")]
     type Output;
 
     /// This is called when the call operator is used.
-    
+    #[unstable(feature = "core", issue = "27701")]
     extern "rust-call" fn call_once(self, args: Args) -> Self::Output;
 }
 
@@ -1786,7 +1786,7 @@ mod impls {
     use marker::Sized;
     use super::{Fn, FnMut, FnOnce};
 
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     impl<'a,A,F:?Sized> Fn<A> for &'a F
         where F : Fn<A>
     {
@@ -1795,7 +1795,7 @@ mod impls {
         }
     }
 
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     impl<'a,A,F:?Sized> FnMut<A> for &'a F
         where F : Fn<A>
     {
@@ -1804,7 +1804,7 @@ mod impls {
         }
     }
 
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     impl<'a,A,F:?Sized> FnOnce<A> for &'a F
         where F : Fn<A>
     {
@@ -1815,7 +1815,7 @@ mod impls {
         }
     }
 
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     impl<'a,A,F:?Sized> FnMut<A> for &'a mut F
         where F : FnMut<A>
     {
@@ -1824,7 +1824,7 @@ mod impls {
         }
     }
 
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     impl<'a,A,F:?Sized> FnOnce<A> for &'a mut F
         where F : FnMut<A>
     {
@@ -1837,41 +1837,41 @@ mod impls {
 
 /// Trait that indicates that this is a pointer or a wrapper for one,
 /// where unsizing can be performed on the pointee.
-
+#[unstable(feature = "coerce_unsized", issue = "27732")]
 #[lang="coerce_unsized"]
 pub trait CoerceUnsized<T> {
     // Empty.
 }
 
 // &mut T -> &mut U
-
+#[unstable(feature = "coerce_unsized", issue = "27732")]
 impl<'a, T: ?Sized+Unsize<U>, U: ?Sized> CoerceUnsized<&'a mut U> for &'a mut T {}
 // &mut T -> &U
-
+#[unstable(feature = "coerce_unsized", issue = "27732")]
 impl<'a, 'b: 'a, T: ?Sized+Unsize<U>, U: ?Sized> CoerceUnsized<&'a U> for &'b mut T {}
 // &mut T -> *mut U
-
+#[unstable(feature = "coerce_unsized", issue = "27732")]
 impl<'a, T: ?Sized+Unsize<U>, U: ?Sized> CoerceUnsized<*mut U> for &'a mut T {}
 // &mut T -> *const U
-
+#[unstable(feature = "coerce_unsized", issue = "27732")]
 impl<'a, T: ?Sized+Unsize<U>, U: ?Sized> CoerceUnsized<*const U> for &'a mut T {}
 
 // &T -> &U
-
+#[unstable(feature = "coerce_unsized", issue = "27732")]
 impl<'a, 'b: 'a, T: ?Sized+Unsize<U>, U: ?Sized> CoerceUnsized<&'a U> for &'b T {}
 // &T -> *const U
-
+#[unstable(feature = "coerce_unsized", issue = "27732")]
 impl<'a, T: ?Sized+Unsize<U>, U: ?Sized> CoerceUnsized<*const U> for &'a T {}
 
 // *mut T -> *mut U
-
+#[unstable(feature = "coerce_unsized", issue = "27732")]
 impl<T: ?Sized+Unsize<U>, U: ?Sized> CoerceUnsized<*mut U> for *mut T {}
 // *mut T -> *const U
-
+#[unstable(feature = "coerce_unsized", issue = "27732")]
 impl<T: ?Sized+Unsize<U>, U: ?Sized> CoerceUnsized<*const U> for *mut T {}
 
 // *const T -> *const U
-
+#[unstable(feature = "coerce_unsized", issue = "27732")]
 impl<T: ?Sized+Unsize<U>, U: ?Sized> CoerceUnsized<*const U> for *const T {}
 
 /// Both `in (PLACE) EXPR` and `box EXPR` desugar into expressions
@@ -1892,7 +1892,7 @@ impl<T: ?Sized+Unsize<U>, U: ?Sized> CoerceUnsized<*const U> for *const T {}
 /// If evaluating EXPR fails, then the destructor for the
 /// implementation of Place to clean up any intermediate state
 /// (e.g. deallocate box storage, pop a stack, etc).
-
+#[unstable(feature = "placement_new_protocol", issue = "27779")]
 pub trait Place<Data: ?Sized> {
     /// Returns the address where the input value will be written.
     /// Note that the data at this address is generally uninitialized,
@@ -1923,7 +1923,7 @@ pub trait Place<Data: ?Sized> {
 /// Values for types implementing this trait usually are transient
 /// intermediate values (e.g. the return value of `Vec::emplace_back`)
 /// or `Copy`, since the `make_place` method takes `self` by value.
-
+#[unstable(feature = "placement_new_protocol", issue = "27779")]
 pub trait Placer<Data: ?Sized> {
     /// `Place` is the intermedate agent guarding the
     /// uninitialized state for `Data`.
@@ -1934,7 +1934,7 @@ pub trait Placer<Data: ?Sized> {
 }
 
 /// Specialization of `Place` trait supporting `in (PLACE) EXPR`.
-
+#[unstable(feature = "placement_new_protocol", issue = "27779")]
 pub trait InPlace<Data: ?Sized>: Place<Data> {
     /// `Owner` is the type of the end value of `in (PLACE) EXPR`
     ///
@@ -1971,7 +1971,7 @@ pub trait InPlace<Data: ?Sized>: Place<Data> {
 /// `<T as Boxed>` in turn dictates determines which
 /// implementation of `BoxPlace` to use, namely:
 /// `<<T as Boxed>::Place as BoxPlace>`.
-
+#[unstable(feature = "placement_new_protocol", issue = "27779")]
 pub trait Boxed {
     /// The kind of data that is stored in this kind of box.
     type Data;  /* (`Data` unused b/c cannot yet express below bound.) */
@@ -1985,7 +1985,7 @@ pub trait Boxed {
 }
 
 /// Specialization of `Place` trait supporting `box EXPR`.
-
+#[unstable(feature = "placement_new_protocol", issue = "27779")]
 pub trait BoxPlace<Data: ?Sized> : Place<Data> {
     /// Creates a globally fresh place.
     fn make_place() -> Self;

@@ -80,7 +80,7 @@
 //! }
 //! ```
 
-
+#![stable(feature = "rust1", since = "1.0.0")]
 
 use marker::Sized;
 
@@ -99,7 +99,7 @@ use marker::Sized;
 ///     bar: f32,
 /// }
 /// ```
-
+#[stable(feature = "rust1", since = "1.0.0")]
 pub trait Default: Sized {
     /// Returns the "default value" for a type.
     ///
@@ -130,13 +130,13 @@ pub trait Default: Sized {
     ///     fn default() -> Kind { Kind::A }
     /// }
     /// ```
-    
+    #[stable(feature = "rust1", since = "1.0.0")]
     fn default() -> Self;
 }
 
 macro_rules! default_impl {
     ($t:ty, $v:expr) => {
-        
+        #[stable(feature = "rust1", since = "1.0.0")]
         impl Default for $t {
             #[inline]
             fn default() -> $t { $v }

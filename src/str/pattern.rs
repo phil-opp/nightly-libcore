@@ -13,7 +13,9 @@
 //! For more details, see the traits `Pattern`, `Searcher`,
 //! `ReverseSearcher` and `DoubleEndedSearcher`.
 
-
+#![unstable(feature = "pattern",
+            reason = "API not fully fleshed out and ready to be stabilized",
+            issue = "27721")]
 
 use prelude::v1::*;
 
