@@ -15,10 +15,11 @@ mkdir -p ~/.ssh
 openssl aes-256-cbc -K $key -iv $iv -in scripts/travis-float-free-libcore.enc -out ~/.ssh/id_rsa -d
 chmod 600 ~/.ssh/id_rsa
 
-git clone --depth=1 https://github.com/rust-lang/rust.git
+git clone https://github.com/rust-lang/rust.git
 
 cd rust
-commit_hash=$(git rev-parse HEAD)
+commit_hash=$(rustc --version | cut -d"(" -f2 | cut -d" " -f1)
+git checkout $commit_hash
 cd ..
 
 git clone git@github.com:phil-opp/float-free-libcore.git
@@ -32,8 +33,6 @@ patch -p0 < ../libcore_nofp.patch
 
 rm -r libcore_orig
 mv libcore src
-# Remove stability attributes
-find src/ -name "*.rs" | xargs perl -0pe 's/#(!)?\[((un)?stable|rustc_deprecated)\([\S\s]*?(?<=\))\]//g' -i
 
 # try to build it
 cargo build
