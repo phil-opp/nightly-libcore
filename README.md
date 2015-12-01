@@ -1,4 +1,4 @@
-# float-free-libcore
+# Nightly libcore
 
 Rust's [core library](https://doc.rust-lang.org/core/) as a cargo crate. Updated daily using [nighli.es](http://nightli.es).
 

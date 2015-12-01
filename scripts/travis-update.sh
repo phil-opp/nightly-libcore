@@ -12,7 +12,7 @@ eval key=\$encrypted_${SSH_KEY_TRAVIS_ID}_key
 eval iv=\$encrypted_${SSH_KEY_TRAVIS_ID}_iv
 
 mkdir -p ~/.ssh
-openssl aes-256-cbc -K $key -iv $iv -in scripts/travis-float-free-libcore.enc -out ~/.ssh/id_rsa -d
+openssl aes-256-cbc -K $key -iv $iv -in scripts/travis-nightly-libcore.enc -out ~/.ssh/id_rsa -d
 chmod 600 ~/.ssh/id_rsa
 
 git clone https://github.com/rust-lang/rust.git
@@ -22,9 +22,9 @@ commit_hash=$(rustc --version | cut -d"(" -f2 | cut -d" " -f1)
 git checkout $commit_hash
 cd ..
 
-git clone git@github.com:phil-opp/float-free-libcore.git
+git clone git@github.com:phil-opp/nightly-libcore.git
 
-cd float-free-libcore
+cd nightly-libcore
 rm -r src
 cp -r ../rust/src/libcore libcore
 cp -r libcore libcore_orig
@@ -48,5 +48,5 @@ git push
 
 cd ../
 rm -rf rust
-rm -rf float-free-libcore
+rm -rf nightly-libcore
 rm libcore_nofp.patch
