@@ -416,7 +416,7 @@ extern "rust-intrinsic" {
     pub fn volatile_store<T>(dst: *mut T, val: T);
 }
 
-#[cfg(not(feature = "disable_float"))]
+#[cfg(not(disable_float))]
 extern "rust-intrinsic" {
     /// Returns the square root of an `f32`
     pub fn sqrtf32(x: f32) -> f32;
