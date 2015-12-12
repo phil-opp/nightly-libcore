@@ -32,7 +32,7 @@ mv libcore src
 
 # try to build it
 cargo build
-cargo build --features="disable_float"
+cargo build --features="disable_float" --target=float_free_target
 
 git config user.name "travis-update-bot"
 git config user.email "nobody@example.com"
