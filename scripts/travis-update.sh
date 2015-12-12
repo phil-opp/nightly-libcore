@@ -39,7 +39,7 @@ git config user.email "nobody@example.com"
 git config --global push.default simple
 
 git add --all src
-git commit -m "Update to $commit_hash"
+git commit -m "Update to $commit_hash" || true
 
 if [ $TRAVIS_BRANCH = 'master' ]; then
   git push
