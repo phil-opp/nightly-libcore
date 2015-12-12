@@ -3,10 +3,6 @@
 # Exit if anything fails
 set -e
 
-[ "$TRAVIS_BRANCH" = master ]
-
-[ "$TRAVIS_PULL_REQUEST" = false ]
-
 eval SSH_KEY_TRAVIS_ID=a2e63a976778
 eval key=\$encrypted_${SSH_KEY_TRAVIS_ID}_key
 eval iv=\$encrypted_${SSH_KEY_TRAVIS_ID}_iv
@@ -44,7 +40,10 @@ git config --global push.default simple
 
 git add src
 git commit -m "Update to $commit_hash"
-git push
+
+if [ $TRAVIS_BRANCH = 'master' ]; then
+  git push
+fi
 
 cd ../
 rm -rf rust
