@@ -38,7 +38,7 @@ git config user.name "travis-update-bot"
 git config user.email "nobody@example.com"
 git config --global push.default simple
 
-git add src
+git add --all src
 git commit -m "Update to $commit_hash"
 
 if [ $TRAVIS_BRANCH = 'master' ]; then
