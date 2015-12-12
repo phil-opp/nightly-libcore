@@ -10,6 +10,4 @@ notifications:
         on_success: never
         on_failure: change
 
-script: cargo build && cargo build --features disable_float
-
-after_success: sh scripts/travis-update.sh
+script: cargo build && cargo build --features disable_float && sh scripts/travis-update.sh
