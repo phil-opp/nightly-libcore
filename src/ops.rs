@@ -204,7 +204,7 @@ macro_rules! add_impl {
 }
 
 add_impl! { usize u8 u16 u32 u64 isize i8 i16 i32 i64 }
-#[cfg(not(disable_float))]
+#[cfg(not(feature = "disable_float"))]
 add_impl! { f32 f64 }
 
 /// The `Sub` trait is used to specify the functionality of `-`.
@@ -260,7 +260,7 @@ macro_rules! sub_impl {
 }
 
 sub_impl! { usize u8 u16 u32 u64 isize i8 i16 i32 i64 }
-#[cfg(not(disable_float))]
+#[cfg(not(feature = "disable_float"))]
 sub_impl! { f32 f64 }
 
 /// The `Mul` trait is used to specify the functionality of `*`.
@@ -316,7 +316,7 @@ macro_rules! mul_impl {
 }
 
 mul_impl! { usize u8 u16 u32 u64 isize i8 i16 i32 i64 }
-#[cfg(not(disable_float))]
+#[cfg(not(feature = "disable_float"))]
 mul_impl! { f32 f64 }
 
 /// The `Div` trait is used to specify the functionality of `/`.
@@ -389,7 +389,7 @@ macro_rules! div_impl_float {
     )*)
 }
 
-#[cfg(not(disable_float))]
+#[cfg(not(feature = "disable_float"))]
 div_impl_float! { f32 f64 }
 
 /// The `Rem` trait is used to specify the functionality of `%`.
@@ -464,7 +464,7 @@ macro_rules! rem_impl_float {
 }
 
 #[cfg(not(stage0))]
-#[cfg(not(disable_float))]
+#[cfg(not(feature = "disable_float"))]
 rem_impl_float! { f32 f64 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
@@ -573,7 +573,7 @@ macro_rules! neg_impl_unsigned {
 
 // neg_impl_unsigned! { usize u8 u16 u32 u64 }
 neg_impl_numeric! { isize i8 i16 i32 i64 }
-#[cfg(not(disable_float))]
+#[cfg(not(feature = "disable_float"))]
 neg_impl_numeric! { f32 f64 }
 
 /// The `Not` trait is used to specify the functionality of unary `!`.
@@ -985,7 +985,7 @@ macro_rules! add_assign_impl {
 
 #[cfg(not(stage0))]
 add_assign_impl! { usize u8 u16 u32 u64 isize i8 i16 i32 i64 }
-#[cfg(not(disable_float))]
+#[cfg(not(feature = "disable_float"))]
 add_assign_impl! { f32 f64 }
 
 /// The `SubAssign` trait is used to specify the functionality of `-=`.
@@ -1037,7 +1037,7 @@ macro_rules! sub_assign_impl {
 
 #[cfg(not(stage0))]
 sub_assign_impl! { usize u8 u16 u32 u64 isize i8 i16 i32 i64 }
-#[cfg(not(disable_float))]
+#[cfg(not(feature = "disable_float"))]
 sub_assign_impl! { f32 f64 }
 
 /// The `MulAssign` trait is used to specify the functionality of `*=`.
@@ -1089,7 +1089,7 @@ macro_rules! mul_assign_impl {
 
 #[cfg(not(stage0))]
 mul_assign_impl! { usize u8 u16 u32 u64 isize i8 i16 i32 i64 }
-#[cfg(not(disable_float))]
+#[cfg(not(feature = "disable_float"))]
 mul_assign_impl! { f32 f64 }
 
 /// The `DivAssign` trait is used to specify the functionality of `/=`.
@@ -1141,7 +1141,7 @@ macro_rules! div_assign_impl {
 
 #[cfg(not(stage0))]
 div_assign_impl! { usize u8 u16 u32 u64 isize i8 i16 i32 i64 }
-#[cfg(not(disable_float))]
+#[cfg(not(feature = "disable_float"))]
 div_assign_impl! { f32 f64 }
 
 /// The `RemAssign` trait is used to specify the functionality of `%=`.
@@ -1193,7 +1193,7 @@ macro_rules! rem_assign_impl {
 
 #[cfg(not(stage0))]
 rem_assign_impl! { usize u8 u16 u32 u64 isize i8 i16 i32 i64 }
-#[cfg(not(disable_float))]
+#[cfg(not(feature = "disable_float"))]
 rem_assign_impl! { f32 f64 }
 
 /// The `BitAndAssign` trait is used to specify the functionality of `&=`.
