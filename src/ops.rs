@@ -1636,7 +1636,7 @@ impl<Idx: fmt::Debug> fmt::Debug for RangeTo<Idx> {
 }
 
 /// The `Deref` trait is used to specify the functionality of dereferencing
-/// operations like `*v`.
+/// operations, like `*v`.
 ///
 /// `Deref` also enables ['`Deref` coercions'][coercions].
 ///
