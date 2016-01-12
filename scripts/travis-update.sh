@@ -27,7 +27,7 @@ cargo build
 cargo build --features="disable_float" --target=float_free_target
 
 git config user.name "travis-update-bot"
-git config user.email "nobody@example.com"
+git config user.email "travis-update-bot@phil-opp.com"
 git config --global push.default simple
 
 git add --all src
