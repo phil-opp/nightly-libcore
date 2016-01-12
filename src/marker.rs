@@ -24,6 +24,8 @@ use hash::Hash;
 use hash::Hasher;
 
 /// Types that can be transferred across thread boundaries.
+///
+/// This trait is automatically derived when the compiler determines it's appropriate.
 #[stable(feature = "rust1", since = "1.0.0")]
 #[lang = "send"]
 #[rustc_on_unimplemented = "`{Self}` cannot be sent between threads safely"]
@@ -219,6 +221,8 @@ pub trait Copy : Clone {
 /// wrapper around the value(s) which can be mutated when behind a `&`
 /// reference; not doing this is undefined behavior (for example,
 /// `transmute`-ing from `&T` to `&mut T` is invalid).
+///
+/// This trait is automatically derived when the compiler determines it's appropriate.
 #[stable(feature = "rust1", since = "1.0.0")]
 #[lang = "sync"]
 #[rustc_on_unimplemented = "`{Self}` cannot be shared between threads safely"]
@@ -290,6 +294,10 @@ macro_rules! impls{
 /// `PhantomData<T>` allows you to describe that a type acts as if it stores a value of type `T`,
 /// even though it does not. This allows you to inform the compiler about certain safety properties
 /// of your code.
+///
+/// For a more in-depth explanation of how to use `PhantomData<T>`, please see [the Nomicon].
+///
+/// [the Nomicon]: ../../nomicon/phantom-data.html
 ///
 /// # A ghastly note 👻👻👻
 ///
