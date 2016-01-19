@@ -62,7 +62,8 @@ if cargo build --release $features --target=$target --verbose; then
   cp "target/$target/release/libcore.rlib" "$libraries/"
   cd ..
   rm -rf nightly-libcore
-  echo "done"
+  echo "done, removing the installation script"
+  rm "$0"
 else
   echo "Cargo build failed!" >&2
   cd ..

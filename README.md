@@ -28,13 +28,7 @@ To install `libcore` without floating point support, run:
 sh install-libcore.sh your-target-name disable_float
 ```
 
-You can safely delete the script after installing:
-
-```
-rm install-libcore.sh
-```
-
-Now it should be possible to compile `no_std` crates for `your-target-name`. 
+After a successful installation the script deletes itself.
 
 ## As Cargo Dependency
 _Note_: This works only for crates without dependencies, as cargo still wants to use the system `libcore` for them.
