@@ -3,7 +3,7 @@
 set -e
 DIR=$( pwd )
 
-usage="Usage: $0 your-target-name [disable_float]"
+usage="Usage: sh $0 your-target-name [disable_float]"
 
 if [[ "$#" -lt 1 || "$#" -gt 2 ]]; then
 echo $usage >&2
