@@ -6,10 +6,49 @@ Rust's [core library](https://doc.rust-lang.org/core/) as a cargo crate. Updated
 
 It has a `disable_float` feature that includes thepowersgang's [float-free libcore patch](https://github.com/thepowersgang/rust-barebones-kernel/blob/master/libcore_nofp.patch).
 
-## Cross compiling
-_Note_: This works only for targets with `"no-compiler-rt": true`.
+_Note_: This crate only works for targets with `"no-compiler-rt": true`.
 
-Copy your `your-target-name.json` file into the cloned folder and run:
+## Quick Installation
+To install a cross-compiled `libcore`, download the installation script:
+
+```
+wget -q https://raw.githubusercontent.com/phil-opp/nightly-libcore/master/install-libcore.sh
+```
+The script should work for multirust and for standard rust installations (but I only tested multirust). Use at your own risk!
+
+To install `libcore` for target `your-target-name` with floating point support, run:
+
+```
+sh install-libcore.sh your-target-name
+```
+Note that `your-target-name`, `your-target-name.json`, and `./your-target-name` are different targets to Rust.
+
+To install `libcore` without floating point support, run:
+```
+sh install-libcore.sh your-target-name disable_float
+```
+
+You can safely delete the script after installing:
+
+```
+rm install-libcore.sh
+```
+
+Now it should be possible to compile `no_std` crates for `your-target-name`. 
+
+## As Cargo Dependency
+_Note_: This works only for crates without dependencies, as cargo still wants to use the system `libcore` for them.
+
+It is a normal cargo crate, so you can just add the following to your `Cargo.toml`:
+
+```toml
+[dependencies.core]
+git = "https://github.com/phil-opp/nightly-libcore.git"
+features = ["disable_float"] # optional
+```
+
+## Manual Installation
+First, clone this repository. Then copy your `your-target-name.json` file into the cloned folder and run:
 
 ```
 cargo build --release --features disable_float --target=your-target-name
@@ -23,3 +62,10 @@ Then put the resulting `target/your-target-name/release/libcore.rlib` in your Ru
 ```
 
 Now it should be possible to compile `no_std` crates for `your-target-name`. Note that `./your-target-name` and `your-target-name` are different targets to Rust.
+
+## Uninstall
+To “unistall”, just remove the `libcore.rlib`. For multirust, it is in
+
+```
+~/.multirust/toolchains/nightly/lib/rustlib/your-target-name/lib
+```
