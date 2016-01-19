@@ -10,6 +10,11 @@ echo $usage >&2
 exit 1
 fi
 
+if [[ "$1" == "-h" || "$1" == "help" || "$1" == "-help" || "$1" == "--help" ]]; then
+echo $usage >&2
+exit 0
+fi
+
 target="$1"
 
 if [ "$#" -eq 2 ]; then
