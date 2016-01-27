@@ -2740,7 +2740,13 @@ pub trait Extend<A> {
 /// It is important to note that both back and forth work on the same range,
 /// and do not cross: iteration is over when they meet in the middle.
 ///
+/// In a similar fashion to the [`Iterator`] protocol, once a
+/// `DoubleEndedIterator` returns `None` from a `next_back()`, calling it again
+/// may or may not ever return `Some` again. `next()` and `next_back()` are
+/// interchangable for this purpose.
+///
 /// [`Iterator`]: trait.Iterator.html
+///
 /// # Examples
 ///
 /// Basic usage:
@@ -4246,13 +4252,15 @@ impl<A: Step> RangeFrom<A> {
     ///
     /// # Examples
     ///
-    /// ```ignore
-    /// for i in (0u8..).step_by(2) {
+    /// ```
+    /// # #![feature(step_by)]
+    ///
+    /// for i in (0u8..).step_by(2).take(10) {
     ///     println!("{}", i);
     /// }
     /// ```
     ///
-    /// This prints all even `u8` values.
+    /// This prints the first ten even natural integers (0 to 18).
     #[unstable(feature = "step_by", reason = "recent addition",
                issue = "27741")]
     pub fn step_by(self, by: A) -> StepBy<A, Self> {
