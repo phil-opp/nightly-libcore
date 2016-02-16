@@ -8,6 +8,8 @@ It has a `disable_float` feature that includes thepowersgang's [float-free libco
 
 _Note_: This crate only works for targets with `"no-compiler-rt": true`.
 
+For cross-compiling `liballoc`, `librustc_unicode`, and `libcollections`, check out [nightly-libcollections](https://github.com/phil-opp/nightly-libcollections).
+
 ## Quick Installation
 To install a cross-compiled `libcore`, download the installation script:
 
