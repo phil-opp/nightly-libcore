@@ -22,6 +22,9 @@ patch -p0 < ../libcore_nofp.patch
 rm -r libcore_orig
 mv libcore src
 
+# remove official Cargo.toml in favor of our own
+rm src/Cargo.toml
+
 # try to build it
 cargo build
 cargo build --features="disable_float" --target=float_free_target
