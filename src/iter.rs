@@ -1532,7 +1532,7 @@ pub trait Iterator {
     /// An iterator adaptor that applies a function, producing a single, final value.
     ///
     /// `fold()` takes two arguments: an initial value, and a closure with two
-    /// arguments: an 'accumulator', and an element. It returns the value that
+    /// arguments: an 'accumulator', and an element. The closure returns the value that
     /// the accumulator should have for the next iteration.
     ///
     /// The initial value is the value the accumulator will have on the first
@@ -3850,6 +3850,17 @@ impl<I> Iterator for Skip<I> where I: Iterator {
 
 #[stable(feature = "rust1", since = "1.0.0")]
 impl<I> ExactSizeIterator for Skip<I> where I: ExactSizeIterator {}
+
+#[stable(feature = "double_ended_skip_iterator", since = "1.8.0")]
+impl<I> DoubleEndedIterator for Skip<I> where I: DoubleEndedIterator + ExactSizeIterator {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        if self.len() > 0 {
+            self.iter.next_back()
+        } else {
+            None
+        }
+    }
+}
 
 /// An iterator that only iterates over the first `n` iterations of `iter`.
 ///
