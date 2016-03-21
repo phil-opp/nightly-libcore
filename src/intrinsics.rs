@@ -53,19 +53,35 @@ extern "rust-intrinsic" {
     // NB: These intrinsics take raw pointers because they mutate aliased
     // memory, which is not valid for either `&` or `&mut`.
 
+    #[cfg(stage0)]
     pub fn atomic_cxchg<T>(dst: *mut T, old: T, src: T) -> T;
+    #[cfg(stage0)]
     pub fn atomic_cxchg_acq<T>(dst: *mut T, old: T, src: T) -> T;
+    #[cfg(stage0)]
     pub fn atomic_cxchg_rel<T>(dst: *mut T, old: T, src: T) -> T;
+    #[cfg(stage0)]
     pub fn atomic_cxchg_acqrel<T>(dst: *mut T, old: T, src: T) -> T;
+    #[cfg(stage0)]
     pub fn atomic_cxchg_relaxed<T>(dst: *mut T, old: T, src: T) -> T;
+
     #[cfg(not(stage0))]
-    pub fn atomic_cxchg_failrelaxed<T>(dst: *mut T, old: T, src: T) -> T;
+    pub fn atomic_cxchg<T>(dst: *mut T, old: T, src: T) -> (T, bool);
     #[cfg(not(stage0))]
-    pub fn atomic_cxchg_failacq<T>(dst: *mut T, old: T, src: T) -> T;
+    pub fn atomic_cxchg_acq<T>(dst: *mut T, old: T, src: T) -> (T, bool);
     #[cfg(not(stage0))]
-    pub fn atomic_cxchg_acq_failrelaxed<T>(dst: *mut T, old: T, src: T) -> T;
+    pub fn atomic_cxchg_rel<T>(dst: *mut T, old: T, src: T) -> (T, bool);
     #[cfg(not(stage0))]
-    pub fn atomic_cxchg_acqrel_failrelaxed<T>(dst: *mut T, old: T, src: T) -> T;
+    pub fn atomic_cxchg_acqrel<T>(dst: *mut T, old: T, src: T) -> (T, bool);
+    #[cfg(not(stage0))]
+    pub fn atomic_cxchg_relaxed<T>(dst: *mut T, old: T, src: T) -> (T, bool);
+    #[cfg(not(stage0))]
+    pub fn atomic_cxchg_failrelaxed<T>(dst: *mut T, old: T, src: T) -> (T, bool);
+    #[cfg(not(stage0))]
+    pub fn atomic_cxchg_failacq<T>(dst: *mut T, old: T, src: T) -> (T, bool);
+    #[cfg(not(stage0))]
+    pub fn atomic_cxchg_acq_failrelaxed<T>(dst: *mut T, old: T, src: T) -> (T, bool);
+    #[cfg(not(stage0))]
+    pub fn atomic_cxchg_acqrel_failrelaxed<T>(dst: *mut T, old: T, src: T) -> (T, bool);
 
     #[cfg(not(stage0))]
     pub fn atomic_cxchgweak<T>(dst: *mut T, old: T, src: T) -> (T, bool);
@@ -541,6 +557,31 @@ extern "rust-intrinsic" {
     pub fn roundf32(x: f32) -> f32;
     /// Returns the nearest integer to an `f64`. Rounds half-way cases away from zero.
     pub fn roundf64(x: f64) -> f64;
+
+    /// Float addition that allows optimizations based on algebraic rules.
+    /// May assume inputs are finite.
+    #[cfg(not(stage0))]
+    pub fn fadd_fast<T>(a: T, b: T) -> T;
+
+    /// Float subtraction that allows optimizations based on algebraic rules.
+    /// May assume inputs are finite.
+    #[cfg(not(stage0))]
+    pub fn fsub_fast<T>(a: T, b: T) -> T;
+
+    /// Float multiplication that allows optimizations based on algebraic rules.
+    /// May assume inputs are finite.
+    #[cfg(not(stage0))]
+    pub fn fmul_fast<T>(a: T, b: T) -> T;
+
+    /// Float division that allows optimizations based on algebraic rules.
+    /// May assume inputs are finite.
+    #[cfg(not(stage0))]
+    pub fn fdiv_fast<T>(a: T, b: T) -> T;
+
+    /// Float remainder that allows optimizations based on algebraic rules.
+    /// May assume inputs are finite.
+    #[cfg(not(stage0))]
+    pub fn frem_fast<T>(a: T, b: T) -> T;
 }
 
 extern "rust-intrinsic" {

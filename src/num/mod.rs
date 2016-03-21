@@ -41,7 +41,7 @@ use slice::SliceExt;
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, Default)]
 pub struct Wrapping<T>(#[stable(feature = "rust1", since = "1.0.0")] pub T);
 
-pub mod wrapping;
+mod wrapping;
 
 // All these modules are technically private and only exposed for libcoretest:
 #[cfg(not(feature = "disable_float"))]
@@ -1011,6 +1011,7 @@ macro_rules! int_impl {
         /// ```
         #[stable(feature = "rust1", since = "1.0.0")]
         #[inline]
+        #[cfg_attr(not(stage0), rustc_no_mir)] // FIXME #29769 MIR overflow checking is TBD.
         pub fn pow(self, mut exp: u32) -> Self {
             let mut base = self;
             let mut acc = Self::one();
@@ -1052,6 +1053,7 @@ macro_rules! int_impl {
         /// ```
         #[stable(feature = "rust1", since = "1.0.0")]
         #[inline]
+        #[cfg_attr(not(stage0), rustc_no_mir)] // FIXME #29769 MIR overflow checking is TBD.
         pub fn abs(self) -> Self {
             if self.is_negative() {
                 // Note that the #[inline] above means that the overflow
@@ -2016,6 +2018,7 @@ macro_rules! uint_impl {
         /// ```
         #[stable(feature = "rust1", since = "1.0.0")]
         #[inline]
+        #[cfg_attr(not(stage0), rustc_no_mir)] // FIXME #29769 MIR overflow checking is TBD.
         pub fn pow(self, mut exp: u32) -> Self {
             let mut base = self;
             let mut acc = Self::one();
@@ -2182,8 +2185,8 @@ impl usize {
 /// This `enum` is used as the return type for [`f32::classify()`] and [`f64::classify()`]. See
 /// their documentation for more.
 ///
-/// [`f32::classify()`]: ../primitive.f32.html#method.classify
-/// [`f64::classify()`]: ../primitive.f64.html#method.classify
+/// [`f32::classify()`]: ../../std/primitive.f32.html#method.classify
+/// [`f64::classify()`]: ../../std/primitive.f64.html#method.classify
 #[derive(Copy, Clone, PartialEq, Debug)]
 #[stable(feature = "rust1", since = "1.0.0")]
 pub enum FpCategory {
@@ -2212,7 +2215,7 @@ pub enum FpCategory {
 #[doc(hidden)]
 #[unstable(feature = "core_float",
            reason = "stable interface is via `impl f{32,64}` in later crates",
-           issue = "27702")]
+           issue = "32110")]
 #[cfg(not(feature = "disable_float"))]
 pub trait Float: Sized {
     /// Returns the NaN value.
@@ -2415,7 +2418,7 @@ fn from_str_radix<T: FromStrRadixHelper>(src: &str, radix: u32)
 /// This error is used as the error type for the `from_str_radix()` functions
 /// on the primitive integer types, such as [`i8::from_str_radix()`].
 ///
-/// [`i8::from_str_radix()`]: ../std/primitive.i8.html#method.from_str_radix
+/// [`i8::from_str_radix()`]: ../../std/primitive.i8.html#method.from_str_radix
 #[derive(Debug, Clone, PartialEq)]
 #[stable(feature = "rust1", since = "1.0.0")]
 pub struct ParseIntError { kind: IntErrorKind }
@@ -2501,7 +2504,7 @@ impl_from! { u32, i64 }
 // Lossy float conversions are not implemented at this time.
 
 #[cfg(not(feature = "disable_float"))]
-mod _int_flot_conv {
+mod _int_float_conv {
 use convert::From;
 // Signed -> Float
 impl_from! { i8, f32 }
