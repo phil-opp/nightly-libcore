@@ -21,13 +21,13 @@ The script should work for multirust and for standard rust installations (but I 
 To install `libcore` for target `your-target-name` (e.g. `x86_64-unknown-linux-gnu` or a custom target file) with floating point support, run:
 
 ```
-sh install-libcore.sh your-target-name
+bash install-libcore.sh your-target-name
 ```
 Note that `your-target-name`, `your-target-name.json`, and `./your-target-name` are different targets to Rust.
 
 To install `libcore` without floating point support, run:
 ```
-sh install-libcore.sh your-target-name disable_float
+bash install-libcore.sh your-target-name disable_float
 ```
 
 After a successful installation the script deletes itself.
