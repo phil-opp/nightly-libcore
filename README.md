@@ -18,7 +18,7 @@ wget -q https://raw.githubusercontent.com/phil-opp/nightly-libcore/master/instal
 ```
 The script should work for multirust and for standard rust installations (but I only tested multirust). Use at your own risk!
 
-To install `libcore` for target `your-target-name` with floating point support, run:
+To install `libcore` for target `your-target-name` (e.g. `x86_64-unknown-linux-gnu` or a custom target file) with floating point support, run:
 
 ```
 sh install-libcore.sh your-target-name
