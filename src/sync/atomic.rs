@@ -162,7 +162,7 @@ unsafe impl<T> Sync for AtomicPtr<T> {}
 /// Rust's memory orderings are [the same as
 /// LLVM's](http://llvm.org/docs/LangRef.html#memory-model-for-concurrent-operations).
 #[stable(feature = "rust1", since = "1.0.0")]
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub enum Ordering {
     /// No ordering constraints, only atomic operations. Corresponds to LLVM's
     /// `Monotonic` ordering.
@@ -1380,7 +1380,7 @@ unsafe fn atomic_sub<T>(dst: *mut T, val: T, order: Ordering) -> T {
 }
 
 #[inline]
-#[cfg(not(stage0))]
+#[cfg(any(not(stage0), cargobuild))]
 unsafe fn atomic_compare_exchange<T>(dst: *mut T,
                                      old: T,
                                      new: T,
@@ -1408,7 +1408,7 @@ unsafe fn atomic_compare_exchange<T>(dst: *mut T,
 }
 
 #[inline]
-#[cfg(stage0)]
+#[cfg(all(stage0, not(cargobuild)))]
 unsafe fn atomic_compare_exchange<T>(dst: *mut T,
                                      old: T,
                                      new: T,
@@ -1431,7 +1431,6 @@ unsafe fn atomic_compare_exchange<T>(dst: *mut T,
 }
 
 #[inline]
-#[cfg(not(stage0))]
 unsafe fn atomic_compare_exchange_weak<T>(dst: *mut T,
                                           old: T,
                                           new: T,
@@ -1456,18 +1455,6 @@ unsafe fn atomic_compare_exchange_weak<T>(dst: *mut T,
     } else {
         Err(val)
     }
-}
-
-#[inline]
-#[cfg(stage0)]
-unsafe fn atomic_compare_exchange_weak<T>(dst: *mut T,
-                                          old: T,
-                                          new: T,
-                                          success: Ordering,
-                                          failure: Ordering) -> Result<T, T>
-    where T: ::cmp::Eq + ::marker::Copy
-{
-    atomic_compare_exchange(dst, old, new, success, failure)
 }
 
 #[inline]
