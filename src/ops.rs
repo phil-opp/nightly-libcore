@@ -1559,6 +1559,11 @@ impl<Idx: PartialOrd<Idx>> Range<Idx> {
 ///
 /// See the [`contains()`](#method.contains) method for its characterization.
 ///
+/// Note: Currently, no overflow checking is done for the iterator
+/// implementation; if you use an integer range and the integer overflows, it
+/// might panic in debug mode or create an endless loop in release mode. This
+/// overflow behavior might change in the future.
+///
 /// # Examples
 ///
 /// ```
