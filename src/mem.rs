@@ -110,12 +110,16 @@ pub use intrinsics::transmute;
 ///     }
 /// }
 /// ```
+#[inline]
 #[stable(feature = "rust1", since = "1.0.0")]
 pub fn forget<T>(t: T) {
     unsafe { intrinsics::forget(t) }
 }
 
 /// Returns the size of a type in bytes.
+///
+/// More specifically, this is the offset in bytes between successive
+/// items of the same type, including alignment padding.
 ///
 /// # Examples
 ///
