@@ -510,7 +510,6 @@ impl<A, B> Iterator for Chain<A, B> where
     }
 
     #[inline]
-    #[rustc_inherit_overflow_checks]
     fn count(self) -> usize {
         match self.state {
             ChainState::Both => self.a.count() + self.b.count(),
@@ -933,7 +932,6 @@ impl<I> Iterator for Enumerate<I> where I: Iterator {
     ///
     /// Might panic if the index of the element overflows a `usize`.
     #[inline]
-    #[rustc_inherit_overflow_checks]
     fn next(&mut self) -> Option<(usize, <I as Iterator>::Item)> {
         self.iter.next().map(|a| {
             let ret = (self.count, a);
@@ -949,7 +947,6 @@ impl<I> Iterator for Enumerate<I> where I: Iterator {
     }
 
     #[inline]
-    #[rustc_inherit_overflow_checks]
     fn nth(&mut self, n: usize) -> Option<(usize, I::Item)> {
         self.iter.nth(n).map(|a| {
             let i = self.count + n;
@@ -1011,7 +1008,6 @@ impl<I: Iterator> Iterator for Peekable<I> {
     }
 
     #[inline]
-    #[rustc_inherit_overflow_checks]
     fn count(self) -> usize {
         (if self.peeked.is_some() { 1 } else { 0 }) + self.iter.count()
     }
