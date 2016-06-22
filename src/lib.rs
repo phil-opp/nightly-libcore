@@ -158,4 +158,5 @@ pub mod hash;
 pub mod fmt;
 
 // note: does not need to be public
+mod iter_private;
 mod tuple;
