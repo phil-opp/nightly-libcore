@@ -1628,6 +1628,7 @@ impl<Idx: PartialOrd<Idx>> RangeFrom<Idx> {
 /// See the [`contains()`](#method.contains) method for its characterization.
 ///
 /// It cannot serve as an iterator because it doesn't have a starting point.
+///
 /// ```
 /// fn main() {
 ///     assert_eq!((..5), std::ops::RangeTo{ end: 5 });
