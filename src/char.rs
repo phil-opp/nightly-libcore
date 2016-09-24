@@ -15,8 +15,10 @@
 #![allow(non_snake_case)]
 #![stable(feature = "core_char", since = "1.2.0")]
 
-use prelude::v1::*;
-
+use char_private::is_printable;
+use convert::TryFrom;
+use fmt;
+use iter::FusedIterator;
 use mem::transmute;
 
 // UTF-8 ranges and tags for encoding characters
@@ -122,12 +124,7 @@ pub const MAX: char = '\u{10ffff}';
 #[inline]
 #[stable(feature = "rust1", since = "1.0.0")]
 pub fn from_u32(i: u32) -> Option<char> {
-    // catch out-of-bounds and surrogates
-    if (i > MAX as u32) || (i >= 0xD800 && i <= 0xDFFF) {
-        None
-    } else {
-        Some(unsafe { from_u32_unchecked(i) })
-    }
+    char::try_from(i).ok()
 }
 
 /// Converts a `u32` to a `char`, ignoring validity.
@@ -173,6 +170,66 @@ pub fn from_u32(i: u32) -> Option<char> {
 #[stable(feature = "char_from_unchecked", since = "1.5.0")]
 pub unsafe fn from_u32_unchecked(i: u32) -> char {
     transmute(i)
+}
+
+#[stable(feature = "char_convert", since = "1.13.0")]
+impl From<char> for u32 {
+    #[inline]
+    fn from(c: char) -> Self {
+        c as u32
+    }
+}
+
+/// Maps a byte in 0x00...0xFF to a `char` whose code point has the same value, in U+0000 to U+00FF.
+///
+/// Unicode is designed such that this effectively decodes bytes
+/// with the character encoding that IANA calls ISO-8859-1.
+/// This encoding is compatible with ASCII.
+///
+/// Note that this is different from ISO/IEC 8859-1 a.k.a. ISO 8859-1 (with one less hypen),
+/// which leaves some "blanks", byte values that are not assigned to any character.
+/// ISO-8859-1 (the IANA one) assigns them to the C0 and C1 control codes.
+///
+/// Note that this is *also* different from Windows-1252 a.k.a. code page 1252,
+/// which is a superset ISO/IEC 8859-1 that assigns some (not all!) blanks
+/// to punctuation and various Latin characters.
+///
+/// To confuse things further, [on the Web](https://encoding.spec.whatwg.org/)
+/// `ascii`, `iso-8859-1`, and `windows-1252` are all aliases
+/// for a superset of Windows-1252 that fills the remaining blanks with corresponding
+/// C0 and C1 control codes.
+#[stable(feature = "char_convert", since = "1.13.0")]
+impl From<u8> for char {
+    #[inline]
+    fn from(i: u8) -> Self {
+        i as char
+    }
+}
+
+#[unstable(feature = "try_from", issue = "33417")]
+impl TryFrom<u32> for char {
+    type Err = CharTryFromError;
+
+    #[inline]
+    fn try_from(i: u32) -> Result<Self, Self::Err> {
+        if (i > MAX as u32) || (i >= 0xD800 && i <= 0xDFFF) {
+            Err(CharTryFromError(()))
+        } else {
+            Ok(unsafe { from_u32_unchecked(i) })
+        }
+    }
+}
+
+/// The error type returned when a conversion from u32 to char fails.
+#[unstable(feature = "try_from", issue = "33417")]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub struct CharTryFromError(());
+
+#[unstable(feature = "try_from", issue = "33417")]
+impl fmt::Display for CharTryFromError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        "converted integer out of range for `char`".fmt(f)
+    }
 }
 
 /// Converts a digit in the given radix to a `char`.
@@ -263,6 +320,8 @@ pub trait CharExt {
     fn escape_unicode(self) -> EscapeUnicode;
     #[stable(feature = "core", since = "1.6.0")]
     fn escape_default(self) -> EscapeDefault;
+    #[unstable(feature = "char_escape_debug", issue = "35068")]
+    fn escape_debug(self) -> EscapeDebug;
     #[stable(feature = "core", since = "1.6.0")]
     fn len_utf8(self) -> usize;
     #[stable(feature = "core", since = "1.6.0")]
@@ -324,6 +383,19 @@ impl CharExt for char {
             _ => EscapeDefaultState::Unicode(self.escape_unicode())
         };
         EscapeDefault { state: init_state }
+    }
+
+    #[inline]
+    fn escape_debug(self) -> EscapeDebug {
+        let init_state = match self {
+            '\t' => EscapeDefaultState::Backslash('t'),
+            '\r' => EscapeDefaultState::Backslash('r'),
+            '\n' => EscapeDefaultState::Backslash('n'),
+            '\\' | '\'' | '"' => EscapeDefaultState::Backslash(self),
+            c if is_printable(c) => EscapeDefaultState::Char(c),
+            c => EscapeDefaultState::Unicode(c.escape_unicode()),
+        };
+        EscapeDebug(EscapeDefault { state: init_state })
     }
 
     #[inline]
@@ -500,6 +572,9 @@ impl ExactSizeIterator for EscapeUnicode {
     }
 }
 
+#[unstable(feature = "fused", issue = "35602")]
+impl FusedIterator for EscapeUnicode {}
+
 /// An iterator that yields the literal escape code of a `char`.
 ///
 /// This `struct` is created by the [`escape_default()`] method on [`char`]. See
@@ -600,6 +675,33 @@ impl ExactSizeIterator for EscapeDefault {
     }
 }
 
+#[unstable(feature = "fused", issue = "35602")]
+impl FusedIterator for EscapeDefault {}
+
+/// An iterator that yields the literal escape code of a `char`.
+///
+/// This `struct` is created by the [`escape_debug()`] method on [`char`]. See its
+/// documentation for more.
+///
+/// [`escape_debug()`]: ../../std/primitive.char.html#method.escape_debug
+/// [`char`]: ../../std/primitive.char.html
+#[unstable(feature = "char_escape_debug", issue = "35068")]
+#[derive(Clone, Debug)]
+pub struct EscapeDebug(EscapeDefault);
+
+#[unstable(feature = "char_escape_debug", issue = "35068")]
+impl Iterator for EscapeDebug {
+    type Item = char;
+    fn next(&mut self) -> Option<char> { self.0.next() }
+    fn size_hint(&self) -> (usize, Option<usize>) { self.0.size_hint() }
+}
+
+#[unstable(feature = "char_escape_debug", issue = "35068")]
+impl ExactSizeIterator for EscapeDebug { }
+
+#[unstable(feature = "fused", issue = "35602")]
+impl FusedIterator for EscapeDebug {}
+
 /// An iterator over `u8` entries represending the UTF-8 encoding of a `char`
 /// value.
 ///
@@ -637,6 +739,9 @@ impl Iterator for EncodeUtf8 {
         self.as_slice().iter().size_hint()
     }
 }
+
+#[unstable(feature = "fused", issue = "35602")]
+impl FusedIterator for EncodeUtf8 {}
 
 /// An iterator over `u16` entries represending the UTF-16 encoding of a `char`
 /// value.
@@ -676,3 +781,111 @@ impl Iterator for EncodeUtf16 {
         self.as_slice().iter().size_hint()
     }
 }
+
+#[unstable(feature = "fused", issue = "35602")]
+impl FusedIterator for EncodeUtf16 {}
+
+/// An iterator over an iterator of bytes of the characters the bytes represent
+/// as UTF-8
+#[unstable(feature = "decode_utf8", issue = "33906")]
+#[derive(Clone, Debug)]
+pub struct DecodeUtf8<I: Iterator<Item = u8>>(::iter::Peekable<I>);
+
+/// Decodes an `Iterator` of bytes as UTF-8.
+#[unstable(feature = "decode_utf8", issue = "33906")]
+#[inline]
+pub fn decode_utf8<I: IntoIterator<Item = u8>>(i: I) -> DecodeUtf8<I::IntoIter> {
+    DecodeUtf8(i.into_iter().peekable())
+}
+
+/// `<DecodeUtf8 as Iterator>::next` returns this for an invalid input sequence.
+#[unstable(feature = "decode_utf8", issue = "33906")]
+#[derive(PartialEq, Debug)]
+pub struct InvalidSequence(());
+
+#[unstable(feature = "decode_utf8", issue = "33906")]
+impl<I: Iterator<Item = u8>> Iterator for DecodeUtf8<I> {
+    type Item = Result<char, InvalidSequence>;
+    #[inline]
+
+    fn next(&mut self) -> Option<Result<char, InvalidSequence>> {
+        self.0.next().map(|first_byte| {
+            // Emit InvalidSequence according to
+            // Unicode §5.22 Best Practice for U+FFFD Substitution
+            // http://www.unicode.org/versions/Unicode9.0.0/ch05.pdf#G40630
+
+            // Roughly: consume at least one byte,
+            // then validate one byte at a time and stop before the first unexpected byte
+            // (which might be the valid start of the next byte sequence).
+
+            let mut code_point;
+            macro_rules! first_byte {
+                ($mask: expr) => {
+                    code_point = u32::from(first_byte & $mask)
+                }
+            }
+            macro_rules! continuation_byte {
+                () => { continuation_byte!(0x80...0xBF) };
+                ($range: pat) => {
+                    match self.0.peek() {
+                        Some(&byte @ $range) => {
+                            code_point = (code_point << 6) | u32::from(byte & 0b0011_1111);
+                            self.0.next();
+                        }
+                        _ => return Err(InvalidSequence(()))
+                    }
+                }
+            }
+
+            match first_byte {
+                0x00...0x7F => {
+                    first_byte!(0b1111_1111);
+                }
+                0xC2...0xDF => {
+                    first_byte!(0b0001_1111);
+                    continuation_byte!();
+                }
+                0xE0 => {
+                    first_byte!(0b0000_1111);
+                    continuation_byte!(0xA0...0xBF);  // 0x80...0x9F here are overlong
+                    continuation_byte!();
+                }
+                0xE1...0xEC | 0xEE...0xEF => {
+                    first_byte!(0b0000_1111);
+                    continuation_byte!();
+                    continuation_byte!();
+                }
+                0xED => {
+                    first_byte!(0b0000_1111);
+                    continuation_byte!(0x80...0x9F);  // 0xA0..0xBF here are surrogates
+                    continuation_byte!();
+                }
+                0xF0 => {
+                    first_byte!(0b0000_0111);
+                    continuation_byte!(0x90...0xBF);  // 0x80..0x8F here are overlong
+                    continuation_byte!();
+                    continuation_byte!();
+                }
+                0xF1...0xF3 => {
+                    first_byte!(0b0000_0111);
+                    continuation_byte!();
+                    continuation_byte!();
+                    continuation_byte!();
+                }
+                0xF4 => {
+                    first_byte!(0b0000_0111);
+                    continuation_byte!(0x80...0x8F);  // 0x90..0xBF here are beyond char::MAX
+                    continuation_byte!();
+                    continuation_byte!();
+                }
+                _ => return Err(InvalidSequence(()))  // Illegal first byte, overlong, or beyond MAX
+            }
+            unsafe {
+                Ok(from_u32_unchecked(code_point))
+            }
+        })
+    }
+}
+
+#[unstable(feature = "fused", issue = "35602")]
+impl<I: FusedIterator<Item = u8>> FusedIterator for DecodeUtf8<I> {}

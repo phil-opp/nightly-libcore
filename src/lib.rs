@@ -25,6 +25,8 @@
 //!
 //! # How to use the core library
 //!
+//! Please note that all of these details are currently not considered stable.
+//!
 // FIXME: Fill me in with more detail when the interface settles
 //! This library is built on the assumption of a few existing symbols:
 //!
@@ -34,11 +36,17 @@
 //!   These functions are often provided by the system libc, but can also be
 //!   provided by the [rlibc crate](https://crates.io/crates/rlibc).
 //!
-//! * `rust_begin_unwind` - This function takes three arguments, a
-//!   `fmt::Arguments`, a `&str`, and a `u32`. These three arguments dictate
-//!   the panic message, the file at which panic was invoked, and the line.
-//!   It is up to consumers of this core library to define this panic
-//!   function; it is only required to never return.
+//! * `rust_begin_panic` - This function takes three arguments, a
+//!   `fmt::Arguments`, a `&'static str`, and a `u32`. These three arguments
+//!   dictate the panic message, the file at which panic was invoked, and the
+//!   line. It is up to consumers of this core library to define this panic
+//!   function; it is only required to never return. This requires a `lang`
+//!   attribute named `panic_fmt`.
+//!
+//! * `rust_eh_personality` - is used by the failure mechanisms of the
+//!    compiler. This is often mapped to GCC's personality function, but crates
+//!    which do not trigger a panic can be assured that this function is never
+//!    called. The `lang` attribute is called `eh_personality`.
 
 // Since libcore defines many fundamental lang items, all tests live in a
 // separate crate, libcoretest, to avoid bizarre issues.
@@ -82,6 +90,12 @@
 #![feature(staged_api)]
 #![feature(unboxed_closures)]
 #![feature(question_mark)]
+#![feature(never_type)]
+#![feature(prelude_import)]
+
+#[prelude_import]
+#[allow(unused)]
+use prelude::v1::*;
 
 #[macro_use]
 mod macros;
@@ -98,17 +112,17 @@ mod int_macros;
 #[macro_use]
 mod uint_macros;
 
-#[path = "num/isize.rs"]  pub mod isize;
-#[path = "num/i8.rs"]   pub mod i8;
-#[path = "num/i16.rs"]  pub mod i16;
-#[path = "num/i32.rs"]  pub mod i32;
-#[path = "num/i64.rs"]  pub mod i64;
+#[path = "num/isize.rs"] pub mod isize;
+#[path = "num/i8.rs"]    pub mod i8;
+#[path = "num/i16.rs"]   pub mod i16;
+#[path = "num/i32.rs"]   pub mod i32;
+#[path = "num/i64.rs"]   pub mod i64;
 
 #[path = "num/usize.rs"] pub mod usize;
-#[path = "num/u8.rs"]   pub mod u8;
-#[path = "num/u16.rs"]  pub mod u16;
-#[path = "num/u32.rs"]  pub mod u32;
-#[path = "num/u64.rs"]  pub mod u64;
+#[path = "num/u8.rs"]    pub mod u8;
+#[path = "num/u16.rs"]   pub mod u16;
+#[path = "num/u32.rs"]   pub mod u32;
+#[path = "num/u64.rs"]   pub mod u64;
 
 #[cfg(not(feature = "disable_float"))]
 #[path = "num/f32.rs"]   pub mod f32;
@@ -158,5 +172,6 @@ pub mod hash;
 pub mod fmt;
 
 // note: does not need to be public
+mod char_private;
 mod iter_private;
 mod tuple;

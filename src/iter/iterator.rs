@@ -8,21 +8,12 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use clone::Clone;
-use cmp::{Ord, PartialOrd, PartialEq, Ordering};
-use default::Default;
-use num::{Zero, One};
-use ops::{Add, FnMut, Mul};
-use option::Option::{self, Some, None};
-use marker::Sized;
+use cmp::Ordering;
 
-use super::{Chain, Cycle, Cloned, Enumerate, Filter, FilterMap, FlatMap, Fuse,
-            Inspect, Map, Peekable, Scan, Skip, SkipWhile, Take, TakeWhile, Rev,
-            Zip};
-use super::ChainState;
-use super::{DoubleEndedIterator, ExactSizeIterator, Extend, FromIterator,
-            IntoIterator};
-use super::ZipImpl;
+use super::{Chain, Cycle, Cloned, Enumerate, Filter, FilterMap, FlatMap, Fuse};
+use super::{Inspect, Map, Peekable, Scan, Skip, SkipWhile, Take, TakeWhile, Rev};
+use super::{Zip, Sum, Product};
+use super::{ChainState, FromIterator, ZipImpl};
 
 fn _assert_is_object_safe(_: &Iterator<Item=()>) {}
 
@@ -1666,6 +1657,32 @@ pub trait Iterator {
             .map(|(_, x)| x)
     }
 
+    /// Returns the element that gives the maximum value with respect to the
+    /// specified comparison function.
+    ///
+    /// Returns the rightmost element if the comparison determines two elements
+    /// to be equally maximum.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// #![feature(iter_max_by)]
+    /// let a = [-3_i32, 0, 1, 5, -10];
+    /// assert_eq!(*a.iter().max_by(|x, y| x.cmp(y)).unwrap(), 5);
+    /// ```
+    #[inline]
+    #[unstable(feature = "iter_max_by", issue="36105")]
+    fn max_by<F>(self, mut compare: F) -> Option<Self::Item>
+        where Self: Sized, F: FnMut(&Self::Item, &Self::Item) -> Ordering,
+    {
+        select_fold1(self,
+                     |_| (),
+                     // switch to y even if it is only equal, to preserve
+                     // stability.
+                     |_, x, _, y| Ordering::Greater != compare(x, y))
+            .map(|(_, x)| x)
+    }
+
     /// Returns the element that gives the minimum value from the
     /// specified function.
     ///
@@ -1689,6 +1706,33 @@ pub trait Iterator {
                      |x_p, _, y_p, _| x_p > y_p)
             .map(|(_, x)| x)
     }
+
+    /// Returns the element that gives the minimum value with respect to the
+    /// specified comparison function.
+    ///
+    /// Returns the latest element if the comparison determines two elements
+    /// to be equally minimum.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// #![feature(iter_min_by)]
+    /// let a = [-3_i32, 0, 1, 5, -10];
+    /// assert_eq!(*a.iter().min_by(|x, y| x.cmp(y)).unwrap(), -10);
+    /// ```
+    #[inline]
+    #[unstable(feature = "iter_min_by", issue="36105")]
+    fn min_by<F>(self, mut compare: F) -> Option<Self::Item>
+        where Self: Sized, F: FnMut(&Self::Item, &Self::Item) -> Ordering,
+    {
+        select_fold1(self,
+                     |_| (),
+                     // switch to y even if it is strictly smaller, to
+                     // preserve stability.
+                     |_, x, _, y| Ordering::Greater == compare(x, y))
+            .map(|(_, x)| x)
+    }
+
 
     /// Reverses an iterator's direction.
     ///
@@ -1820,36 +1864,43 @@ pub trait Iterator {
     ///
     /// An empty iterator returns the zero value of the type.
     ///
+    /// # Panics
+    ///
+    /// When calling `sum` and a primitive integer type is being returned, this
+    /// method will panic if the computation overflows and debug assertions are
+    /// enabled.
+    ///
     /// # Examples
     ///
     /// Basic usage:
     ///
     /// ```
-    /// #![feature(iter_arith)]
-    ///
     /// let a = [1, 2, 3];
     /// let sum: i32 = a.iter().sum();
     ///
     /// assert_eq!(sum, 6);
     /// ```
-    #[unstable(feature = "iter_arith", reason = "bounds recently changed",
-               issue = "27739")]
-    fn sum<S>(self) -> S where
-        S: Add<Self::Item, Output=S> + Zero,
-        Self: Sized,
+    #[stable(feature = "iter_arith", since = "1.11.0")]
+    fn sum<S>(self) -> S
+        where Self: Sized,
+              S: Sum<Self::Item>,
     {
-        self.fold(Zero::zero(), |s, e| s + e)
+        Sum::sum(self)
     }
 
     /// Iterates over the entire iterator, multiplying all the elements
     ///
     /// An empty iterator returns the one value of the type.
     ///
+    /// # Panics
+    ///
+    /// When calling `product` and a primitive integer type is being returned,
+    /// method will panic if the computation overflows and debug assertions are
+    /// enabled.
+    ///
     /// # Examples
     ///
     /// ```
-    /// #![feature(iter_arith)]
-    ///
     /// fn factorial(n: u32) -> u32 {
     ///     (1..).take_while(|&i| i <= n).product()
     /// }
@@ -1857,13 +1908,12 @@ pub trait Iterator {
     /// assert_eq!(factorial(1), 1);
     /// assert_eq!(factorial(5), 120);
     /// ```
-    #[unstable(feature="iter_arith", reason = "bounds recently changed",
-               issue = "27739")]
-    fn product<P>(self) -> P where
-        P: Mul<Self::Item, Output=P> + One,
-        Self: Sized,
+    #[stable(feature = "iter_arith", since = "1.11.0")]
+    fn product<P>(self) -> P
+        where Self: Sized,
+              P: Product<Self::Item>,
     {
-        self.fold(One::one(), |p, e| p * e)
+        Product::product(self)
     }
 
     /// Lexicographically compares the elements of this `Iterator` with those

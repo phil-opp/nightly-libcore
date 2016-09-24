@@ -10,7 +10,6 @@
 
 //! The various algorithms from the paper.
 
-use prelude::v1::*;
 use cmp::min;
 use cmp::Ordering::{Less, Equal, Greater};
 use num::diy_float::Fp;
@@ -47,7 +46,6 @@ mod fpu_precision {
 #[cfg(all(target_arch="x86", not(target_feature="sse2")))]
 mod fpu_precision {
     use mem::size_of;
-    use ops::Drop;
 
     /// A structure used to preserve the original value of the FPU control word, so that it can be
     /// restored when the structure is dropped.
@@ -321,7 +319,7 @@ pub fn algorithm_m<T: RawFloat>(f: &Big, e: i16) -> T {
             return underflow(x, v, rem);
         }
         if k > T::max_exp_int() {
-            return T::infinity();
+            return T::infinity2();
         }
         if x < min_sig {
             u.mul_pow2(1);

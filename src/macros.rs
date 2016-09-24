@@ -35,6 +35,17 @@ macro_rules! panic {
 /// This will invoke the `panic!` macro if the provided expression cannot be
 /// evaluated to `true` at runtime.
 ///
+/// Assertions are always checked in both debug and release builds, and cannot
+/// be disabled. See `debug_assert!` for assertions that are not enabled in
+/// release builds by default.
+///
+/// Unsafe code relies on `assert!` to enforce run-time invariants that, if
+/// violated could lead to unsafety.
+///
+/// Other use-cases of `assert!` include
+/// [testing](https://doc.rust-lang.org/book/testing.html) and enforcing
+/// run-time invariants in safe code (whose violation cannot result in unsafety).
+///
 /// This macro has a second version, where a custom panic message can be provided.
 ///
 /// # Examples
@@ -108,6 +119,44 @@ macro_rules! assert_eq {
     });
 }
 
+/// Asserts that two expressions are not equal to each other.
+///
+/// On panic, this macro will print the values of the expressions with their
+/// debug representations.
+///
+/// # Examples
+///
+/// ```
+/// let a = 3;
+/// let b = 2;
+/// assert_ne!(a, b);
+/// ```
+#[macro_export]
+#[stable(feature = "assert_ne", since = "1.12.0")]
+macro_rules! assert_ne {
+    ($left:expr , $right:expr) => ({
+        match (&$left, &$right) {
+            (left_val, right_val) => {
+                if *left_val == *right_val {
+                    panic!("assertion failed: `(left != right)` \
+                           (left: `{:?}`, right: `{:?}`)", left_val, right_val)
+                }
+            }
+        }
+    });
+    ($left:expr , $right:expr, $($arg:tt)*) => ({
+        match (&($left), &($right)) {
+            (left_val, right_val) => {
+                if *left_val == *right_val {
+                    panic!("assertion failed: `(left != right)` \
+                           (left: `{:?}`, right: `{:?}`): {}", left_val, right_val,
+                           format_args!($($arg)*))
+                }
+            }
+        }
+    });
+}
+
 /// Ensure that a boolean expression is `true` at runtime.
 ///
 /// This will invoke the `panic!` macro if the provided expression cannot be
@@ -122,6 +171,13 @@ macro_rules! assert_eq {
 /// compiler. This makes `debug_assert!` useful for checks that are too
 /// expensive to be present in a release build but may be helpful during
 /// development.
+///
+/// An unchecked assertion allows a program in an inconsistent state to keep
+/// running, which might have unexpected consequences but does not introduce
+/// unsafety as long as this only happens in safe code. The performance cost
+/// of assertions, is however, not measurable in general. Replacing `assert!`
+/// with `debug_assert!` is thus only encouraged after thorough profiling, and
+/// more importantly, only in safe code!
 ///
 /// # Examples
 ///
@@ -171,10 +227,44 @@ macro_rules! debug_assert_eq {
     ($($arg:tt)*) => (if cfg!(debug_assertions) { assert_eq!($($arg)*); })
 }
 
-/// Helper macro for unwrapping `Result` values while returning early with an
-/// error if the value of the expression is `Err`. Can only be used in
-/// functions that return `Result` because of the early return of `Err` that
-/// it provides.
+/// Asserts that two expressions are not equal to each other.
+///
+/// On panic, this macro will print the values of the expressions with their
+/// debug representations.
+///
+/// Unlike `assert_ne!`, `debug_assert_ne!` statements are only enabled in non
+/// optimized builds by default. An optimized build will omit all
+/// `debug_assert_ne!` statements unless `-C debug-assertions` is passed to the
+/// compiler. This makes `debug_assert_ne!` useful for checks that are too
+/// expensive to be present in a release build but may be helpful during
+/// development.
+///
+/// # Examples
+///
+/// ```
+/// let a = 3;
+/// let b = 2;
+/// debug_assert_ne!(a, b);
+/// ```
+#[macro_export]
+#[stable(feature = "assert_ne", since = "1.12.0")]
+macro_rules! debug_assert_ne {
+    ($($arg:tt)*) => (if cfg!(debug_assertions) { assert_ne!($($arg)*); })
+}
+
+/// Helper macro for reducing boilerplate code for matching `Result` together
+/// with converting downstream errors.
+///
+/// `try!` matches the given `Result`. In case of the `Ok` variant, the
+/// expression has the value of the wrapped value.
+///
+/// In case of the `Err` variant, it retrieves the inner error. `try!` then
+/// performs conversion using `From`. This provides automatic conversion
+/// between specialized errors and more general ones. The resulting
+/// error is then immediately returned.
+///
+/// Because of the early return, `try!` can only be used in functions that
+/// return `Result`.
 ///
 /// # Examples
 ///
@@ -183,18 +273,28 @@ macro_rules! debug_assert_eq {
 /// use std::fs::File;
 /// use std::io::prelude::*;
 ///
-/// fn write_to_file_using_try() -> Result<(), io::Error> {
+/// enum MyError {
+///     FileWriteError
+/// }
+///
+/// impl From<io::Error> for MyError {
+///     fn from(e: io::Error) -> MyError {
+///         MyError::FileWriteError
+///     }
+/// }
+///
+/// fn write_to_file_using_try() -> Result<(), MyError> {
 ///     let mut file = try!(File::create("my_best_friends.txt"));
 ///     try!(file.write_all(b"This is a list of my best friends."));
 ///     println!("I wrote to the file");
 ///     Ok(())
 /// }
 /// // This is equivalent to:
-/// fn write_to_file_using_match() -> Result<(), io::Error> {
+/// fn write_to_file_using_match() -> Result<(), MyError> {
 ///     let mut file = try!(File::create("my_best_friends.txt"));
 ///     match file.write_all(b"This is a list of my best friends.") {
 ///         Ok(v) => v,
-///         Err(e) => return Err(e),
+///         Err(e) => return Err(From::from(e)),
 ///     }
 ///     println!("I wrote to the file");
 ///     Ok(())
@@ -211,14 +311,28 @@ macro_rules! try {
     })
 }
 
-/// Use the `format!` syntax to write data into a buffer.
+/// Write formatted data into a buffer
 ///
-/// This macro is typically used with a buffer of `&mut `[`Write`][write].
+/// This macro accepts any value with `write_fmt` method as a writer, a format string, and a list
+/// of arguments to format.
+///
+/// `write_fmt` method usually comes from an implementation of [`std::fmt::Write`][fmt_write] or
+/// [`std::io::Write`][io_write] traits. These are sometimes called 'writers'.
+///
+/// Passed arguments will be formatted according to the specified format string and the resulting
+/// string will be passed to the writer.
 ///
 /// See [`std::fmt`][fmt] for more information on format syntax.
 ///
+/// Return value is completely dependent on the 'write_fmt' method.
+///
+/// Common return values are: [`Result`][enum_result], [`io::Result`][type_result]
+///
 /// [fmt]: ../std/fmt/index.html
-/// [write]: ../std/io/trait.Write.html
+/// [fmt_write]: ../std/fmt/trait.Write.html
+/// [io_write]: ../std/io/trait.Write.html
+/// [enum_result]: ../std/result/enum.Result.html
+/// [type_result]: ../std/io/type.Result.html
 ///
 /// # Examples
 ///
@@ -237,14 +351,31 @@ macro_rules! write {
     ($dst:expr, $($arg:tt)*) => ($dst.write_fmt(format_args!($($arg)*)))
 }
 
-/// Use the `format!` syntax to write data into a buffer, appending a newline.
+/// Write formatted data into a buffer, with appending a newline.
 ///
-/// This macro is typically used with a buffer of `&mut `[`Write`][write].
+/// On all platforms, the newline is the LINE FEED character (`\n`/`U+000A`) alone
+/// (no additional CARRIAGE RETURN (`\r`/`U+000D`).
+///
+/// This macro accepts any value with `write_fmt` method as a writer, a format string, and a list
+/// of arguments to format.
+///
+/// `write_fmt` method usually comes from an implementation of [`std::fmt::Write`][fmt_write] or
+/// [`std::io::Write`][io_write] traits. These are sometimes called 'writers'.
+///
+/// Passed arguments will be formatted according to the specified format string and the resulting
+/// string will be passed to the writer.
 ///
 /// See [`std::fmt`][fmt] for more information on format syntax.
 ///
+/// Return value is completely dependent on the 'write_fmt' method.
+///
+/// Common return values are: [`Result`][enum_result], [`io::Result`][type_result]
+///
 /// [fmt]: ../std/fmt/index.html
-/// [write]: ../std/io/trait.Write.html
+/// [fmt_write]: ../std/fmt/trait.Write.html
+/// [io_write]: ../std/io/trait.Write.html
+/// [enum_result]: ../std/result/enum.Result.html
+/// [type_result]: ../std/io/type.Result.html
 ///
 /// # Examples
 ///

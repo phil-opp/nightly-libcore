@@ -18,18 +18,10 @@ use self::pattern::Pattern;
 use self::pattern::{Searcher, ReverseSearcher, DoubleEndedSearcher};
 
 use char;
-use clone::Clone;
-use convert::AsRef;
-use default::Default;
 use fmt;
-use iter::ExactSizeIterator;
-use iter::{Map, Cloned, Iterator, DoubleEndedIterator};
-use marker::Sized;
+use iter::{Map, Cloned, FusedIterator};
 use mem;
-use ops::{Fn, FnMut, FnOnce};
-use option::Option::{self, None, Some};
-use result::Result::{self, Ok, Err};
-use slice::{self, SliceExt};
+use slice;
 
 pub mod pattern;
 
@@ -388,8 +380,9 @@ pub fn next_code_point<'a, I: Iterator<Item = &'a u8>>(bytes: &mut I) -> Option<
 /// Reads the last code point out of a byte iterator (assuming a
 /// UTF-8-like encoding).
 #[inline]
-fn next_code_point_reverse<'a,
-                           I: DoubleEndedIterator<Item = &'a u8>>(bytes: &mut I) -> Option<u32> {
+fn next_code_point_reverse<'a, I>(bytes: &mut I) -> Option<u32>
+    where I: DoubleEndedIterator<Item = &'a u8>,
+{
     // Decode UTF-8
     let w = match bytes.next_back() {
         None => return None,
@@ -454,11 +447,27 @@ impl<'a> DoubleEndedIterator for Chars<'a> {
     }
 }
 
+#[unstable(feature = "fused", issue = "35602")]
+impl<'a> FusedIterator for Chars<'a> {}
+
 impl<'a> Chars<'a> {
     /// View the underlying data as a subslice of the original data.
     ///
     /// This has the same lifetime as the original slice, and so the
     /// iterator can continue to be used while this exists.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let mut chars = "abc".chars();
+    ///
+    /// assert_eq!(chars.as_str(), "abc");
+    /// chars.next();
+    /// assert_eq!(chars.as_str(), "bc");
+    /// chars.next();
+    /// chars.next();
+    /// assert_eq!(chars.as_str(), "");
+    /// ```
     #[stable(feature = "iter_to_slice", since = "1.4.0")]
     #[inline]
     pub fn as_str(&self) -> &'a str {
@@ -511,6 +520,9 @@ impl<'a> DoubleEndedIterator for CharIndices<'a> {
         }
     }
 }
+
+#[unstable(feature = "fused", issue = "35602")]
+impl<'a> FusedIterator for CharIndices<'a> {}
 
 impl<'a> CharIndices<'a> {
     /// View the underlying data as a subslice of the original data.
@@ -579,6 +591,9 @@ impl<'a> ExactSizeIterator for Bytes<'a> {
         self.0.len()
     }
 }
+
+#[unstable(feature = "fused", issue = "35602")]
+impl<'a> FusedIterator for Bytes<'a> {}
 
 /// This macro generates a Clone impl for string pattern API
 /// wrapper types of the form X<'a, P>
@@ -725,6 +740,13 @@ macro_rules! generate_pattern_iterators {
                 $reverse_iterator(self.0.clone())
             }
         }
+
+        #[unstable(feature = "fused", issue = "35602")]
+        impl<'a, P: Pattern<'a>> FusedIterator for $forward_iterator<'a, P> {}
+
+        #[unstable(feature = "fused", issue = "35602")]
+        impl<'a, P: Pattern<'a>> FusedIterator for $reverse_iterator<'a, P>
+            where P::Searcher: ReverseSearcher<'a> {}
 
         generate_pattern_iterators!($($t)* with $(#[$common_stability_attribute])*,
                                                 $forward_iterator,
@@ -1075,6 +1097,9 @@ impl<'a> DoubleEndedIterator for Lines<'a> {
     }
 }
 
+#[unstable(feature = "fused", issue = "35602")]
+impl<'a> FusedIterator for Lines<'a> {}
+
 /// Created with the method [`lines_any()`].
 ///
 /// [`lines_any()`]: ../../std/primitive.str.html#method.lines_any
@@ -1137,6 +1162,10 @@ impl<'a> DoubleEndedIterator for LinesAny<'a> {
         self.0.next_back()
     }
 }
+
+#[unstable(feature = "fused", issue = "35602")]
+#[allow(deprecated)]
+impl<'a> FusedIterator for LinesAny<'a> {}
 
 /*
 Section: Comparing strings
@@ -1301,11 +1330,9 @@ Section: Trait implementations
 */
 
 mod traits {
-    use cmp::{Ord, Ordering, PartialEq, PartialOrd, Eq};
-    use option::Option;
-    use option::Option::Some;
+    use cmp::Ordering;
     use ops;
-    use str::{StrExt, eq_slice};
+    use str::eq_slice;
 
     #[stable(feature = "rust1", since = "1.0.0")]
     impl Ord for str {
@@ -1960,5 +1987,6 @@ impl AsRef<[u8]> for str {
 
 #[stable(feature = "rust1", since = "1.0.0")]
 impl<'a> Default for &'a str {
+    /// Creates an empty str
     fn default() -> &'a str { "" }
 }

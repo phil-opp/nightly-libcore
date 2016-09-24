@@ -32,7 +32,7 @@
 //! atomically-reference-counted shared pointer).
 //!
 //! Most atomic types may be stored in static variables, initialized using
-//! the provided static initializers like `INIT_ATOMIC_BOOL`. Atomic statics
+//! the provided static initializers like `ATOMIC_BOOL_INIT`. Atomic statics
 //! are often used for lazy global initialization.
 //!
 //!
@@ -74,20 +74,18 @@
 //! ```
 
 #![stable(feature = "rust1", since = "1.0.0")]
+#![cfg_attr(not(target_has_atomic = "8"), allow(dead_code))]
+#![cfg_attr(not(target_has_atomic = "8"), allow(unused_imports))]
 
 use self::Ordering::*;
 
-use marker::{Send, Sync};
-
 use intrinsics;
 use cell::UnsafeCell;
-
-use result::Result::{self, Ok, Err};
-
-use default::Default;
 use fmt;
 
 /// A boolean type which can be safely shared between threads.
+///
+/// This type has the same in-memory representation as a `bool`.
 #[cfg(target_has_atomic = "8")]
 #[stable(feature = "rust1", since = "1.0.0")]
 pub struct AtomicBool {
@@ -97,6 +95,7 @@ pub struct AtomicBool {
 #[cfg(target_has_atomic = "8")]
 #[stable(feature = "rust1", since = "1.0.0")]
 impl Default for AtomicBool {
+    /// Creates an `AtomicBool` initialised as false.
     fn default() -> Self {
         Self::new(false)
     }
@@ -108,6 +107,8 @@ impl Default for AtomicBool {
 unsafe impl Sync for AtomicBool {}
 
 /// A raw pointer type which can be safely shared between threads.
+///
+/// This type has the same in-memory representation as a `*mut T`.
 #[cfg(target_has_atomic = "ptr")]
 #[stable(feature = "rust1", since = "1.0.0")]
 pub struct AtomicPtr<T> {
@@ -117,6 +118,7 @@ pub struct AtomicPtr<T> {
 #[cfg(target_has_atomic = "ptr")]
 #[stable(feature = "rust1", since = "1.0.0")]
 impl<T> Default for AtomicPtr<T> {
+    /// Creates a null `AtomicPtr<T>`.
     fn default() -> AtomicPtr<T> {
         AtomicPtr::new(::ptr::null_mut())
     }
@@ -187,6 +189,48 @@ impl AtomicBool {
     #[stable(feature = "rust1", since = "1.0.0")]
     pub const fn new(v: bool) -> AtomicBool {
         AtomicBool { v: UnsafeCell::new(v as u8) }
+    }
+
+    /// Returns a mutable reference to the underlying `bool`.
+    ///
+    /// This is safe because the mutable reference guarantees that no other threads are
+    /// concurrently accessing the atomic data.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// #![feature(atomic_access)]
+    /// use std::sync::atomic::{AtomicBool, Ordering};
+    ///
+    /// let mut some_bool = AtomicBool::new(true);
+    /// assert_eq!(*some_bool.get_mut(), true);
+    /// *some_bool.get_mut() = false;
+    /// assert_eq!(some_bool.load(Ordering::SeqCst), false);
+    /// ```
+    #[inline]
+    #[unstable(feature = "atomic_access", issue = "35603")]
+    pub fn get_mut(&mut self) -> &mut bool {
+        unsafe { &mut *(self.v.get() as *mut bool) }
+    }
+
+    /// Consumes the atomic and returns the contained value.
+    ///
+    /// This is safe because passing `self` by value guarantees that no other threads are
+    /// concurrently accessing the atomic data.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// #![feature(atomic_access)]
+    /// use std::sync::atomic::AtomicBool;
+    ///
+    /// let some_bool = AtomicBool::new(true);
+    /// assert_eq!(some_bool.into_inner(), true);
+    /// ```
+    #[inline]
+    #[unstable(feature = "atomic_access", issue = "35603")]
+    pub fn into_inner(self) -> bool {
+        unsafe { self.v.into_inner() != 0 }
     }
 
     /// Loads a value from the bool.
@@ -526,6 +570,47 @@ impl<T> AtomicPtr<T> {
         AtomicPtr { p: UnsafeCell::new(p) }
     }
 
+    /// Returns a mutable reference to the underlying pointer.
+    ///
+    /// This is safe because the mutable reference guarantees that no other threads are
+    /// concurrently accessing the atomic data.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// #![feature(atomic_access)]
+    /// use std::sync::atomic::{AtomicPtr, Ordering};
+    ///
+    /// let mut atomic_ptr = AtomicPtr::new(&mut 10);
+    /// *atomic_ptr.get_mut() = &mut 5;
+    /// assert_eq!(unsafe { *atomic_ptr.load(Ordering::SeqCst) }, 5);
+    /// ```
+    #[inline]
+    #[unstable(feature = "atomic_access", issue = "35603")]
+    pub fn get_mut(&mut self) -> &mut *mut T {
+        unsafe { &mut *self.p.get() }
+    }
+
+    /// Consumes the atomic and returns the contained value.
+    ///
+    /// This is safe because passing `self` by value guarantees that no other threads are
+    /// concurrently accessing the atomic data.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// #![feature(atomic_access)]
+    /// use std::sync::atomic::AtomicPtr;
+    ///
+    /// let atomic_ptr = AtomicPtr::new(&mut 5);
+    /// assert_eq!(unsafe { *atomic_ptr.into_inner() }, 5);
+    /// ```
+    #[inline]
+    #[unstable(feature = "atomic_access", issue = "35603")]
+    pub fn into_inner(self) -> *mut T {
+        unsafe { self.p.into_inner() }
+    }
+
     /// Loads a value from the pointer.
     ///
     /// `load` takes an `Ordering` argument which describes the memory ordering of this operation.
@@ -728,8 +813,11 @@ macro_rules! atomic_int {
     ($stable:meta,
      $stable_cxchg:meta,
      $stable_debug:meta,
+     $stable_access:meta,
      $int_type:ident $atomic_type:ident $atomic_init:ident) => {
         /// An integer type which can be safely shared between threads.
+        ///
+        /// This type has the same in-memory representation as the underlying integer type.
         #[$stable]
         pub struct $atomic_type {
             v: UnsafeCell<$int_type>,
@@ -773,6 +861,48 @@ macro_rules! atomic_int {
             #[$stable]
             pub const fn new(v: $int_type) -> Self {
                 $atomic_type {v: UnsafeCell::new(v)}
+            }
+
+            /// Returns a mutable reference to the underlying integer.
+            ///
+            /// This is safe because the mutable reference guarantees that no other threads are
+            /// concurrently accessing the atomic data.
+            ///
+            /// # Examples
+            ///
+            /// ```
+            /// #![feature(atomic_access)]
+            /// use std::sync::atomic::{AtomicIsize, Ordering};
+            ///
+            /// let mut some_isize = AtomicIsize::new(10);
+            /// assert_eq!(*some_isize.get_mut(), 10);
+            /// *some_isize.get_mut() = 5;
+            /// assert_eq!(some_isize.load(Ordering::SeqCst), 5);
+            /// ```
+            #[inline]
+            #[$stable_access]
+            pub fn get_mut(&mut self) -> &mut $int_type {
+                unsafe { &mut *self.v.get() }
+            }
+
+            /// Consumes the atomic and returns the contained value.
+            ///
+            /// This is safe because passing `self` by value guarantees that no other threads are
+            /// concurrently accessing the atomic data.
+            ///
+            /// # Examples
+            ///
+            /// ```
+            /// #![feature(atomic_access)]
+            /// use std::sync::atomic::AtomicIsize;
+            ///
+            /// let some_isize = AtomicIsize::new(5);
+            /// assert_eq!(some_isize.into_inner(), 5);
+            /// ```
+            #[inline]
+            #[$stable_access]
+            pub fn into_inner(self) -> $int_type {
+                unsafe { self.v.into_inner() }
             }
 
             /// Loads a value from the atomic integer.
@@ -1055,10 +1185,12 @@ atomic_int! {
     unstable(feature = "integer_atomics", issue = "32976"),
     unstable(feature = "integer_atomics", issue = "32976"),
     unstable(feature = "integer_atomics", issue = "32976"),
+    unstable(feature = "integer_atomics", issue = "32976"),
     i8 AtomicI8 ATOMIC_I8_INIT
 }
 #[cfg(target_has_atomic = "8")]
 atomic_int! {
+    unstable(feature = "integer_atomics", issue = "32976"),
     unstable(feature = "integer_atomics", issue = "32976"),
     unstable(feature = "integer_atomics", issue = "32976"),
     unstable(feature = "integer_atomics", issue = "32976"),
@@ -1069,10 +1201,12 @@ atomic_int! {
     unstable(feature = "integer_atomics", issue = "32976"),
     unstable(feature = "integer_atomics", issue = "32976"),
     unstable(feature = "integer_atomics", issue = "32976"),
+    unstable(feature = "integer_atomics", issue = "32976"),
     i16 AtomicI16 ATOMIC_I16_INIT
 }
 #[cfg(target_has_atomic = "16")]
 atomic_int! {
+    unstable(feature = "integer_atomics", issue = "32976"),
     unstable(feature = "integer_atomics", issue = "32976"),
     unstable(feature = "integer_atomics", issue = "32976"),
     unstable(feature = "integer_atomics", issue = "32976"),
@@ -1083,10 +1217,12 @@ atomic_int! {
     unstable(feature = "integer_atomics", issue = "32976"),
     unstable(feature = "integer_atomics", issue = "32976"),
     unstable(feature = "integer_atomics", issue = "32976"),
+    unstable(feature = "integer_atomics", issue = "32976"),
     i32 AtomicI32 ATOMIC_I32_INIT
 }
 #[cfg(target_has_atomic = "32")]
 atomic_int! {
+    unstable(feature = "integer_atomics", issue = "32976"),
     unstable(feature = "integer_atomics", issue = "32976"),
     unstable(feature = "integer_atomics", issue = "32976"),
     unstable(feature = "integer_atomics", issue = "32976"),
@@ -1097,10 +1233,12 @@ atomic_int! {
     unstable(feature = "integer_atomics", issue = "32976"),
     unstable(feature = "integer_atomics", issue = "32976"),
     unstable(feature = "integer_atomics", issue = "32976"),
+    unstable(feature = "integer_atomics", issue = "32976"),
     i64 AtomicI64 ATOMIC_I64_INIT
 }
 #[cfg(target_has_atomic = "64")]
 atomic_int! {
+    unstable(feature = "integer_atomics", issue = "32976"),
     unstable(feature = "integer_atomics", issue = "32976"),
     unstable(feature = "integer_atomics", issue = "32976"),
     unstable(feature = "integer_atomics", issue = "32976"),
@@ -1111,6 +1249,7 @@ atomic_int!{
     stable(feature = "rust1", since = "1.0.0"),
     stable(feature = "extended_compare_and_swap", since = "1.10.0"),
     stable(feature = "atomic_debug", since = "1.3.0"),
+    unstable(feature = "atomic_access", issue = "35603"),
     isize AtomicIsize ATOMIC_ISIZE_INIT
 }
 #[cfg(target_has_atomic = "ptr")]
@@ -1118,6 +1257,7 @@ atomic_int!{
     stable(feature = "rust1", since = "1.0.0"),
     stable(feature = "extended_compare_and_swap", since = "1.10.0"),
     stable(feature = "atomic_debug", since = "1.3.0"),
+    unstable(feature = "atomic_access", issue = "35603"),
     usize AtomicUsize ATOMIC_USIZE_INIT
 }
 

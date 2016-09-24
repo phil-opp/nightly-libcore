@@ -648,8 +648,6 @@ macro_rules! float_sum_product {
 }
 
 integer_sum_product! { i8 i16 i32 i64 isize u8 u16 u32 u64 usize }
-
-#[cfg(not(feature = "disable_float"))]
 float_sum_product! { f32 f64 }
 
 /// An iterator that always continues to yield `None` when exhausted.

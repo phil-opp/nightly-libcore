@@ -71,8 +71,6 @@
 
 #![stable(feature = "rust1", since = "1.0.0")]
 
-use prelude::v1::*;
-
 use fmt;
 use marker;
 use mem;
@@ -234,6 +232,16 @@ pub trait BuildHasher {
     type Hasher: Hasher;
 
     /// Creates a new hasher.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use std::collections::hash_map::RandomState;
+    /// use std::hash::BuildHasher;
+    ///
+    /// let s = RandomState::new();
+    /// let new_s = s.build_hasher();
+    /// ```
     #[stable(since = "1.7.0", feature = "build_hasher")]
     fn build_hasher(&self) -> Self::Hasher;
 }
@@ -278,8 +286,6 @@ impl<H> Default for BuildHasherDefault<H> {
 //////////////////////////////////////////////////////////////////////////////
 
 mod impls {
-    use prelude::v1::*;
-
     use mem;
     use slice;
     use super::*;

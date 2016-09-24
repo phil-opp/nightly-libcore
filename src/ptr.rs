@@ -16,17 +16,14 @@
 
 #![stable(feature = "rust1", since = "1.0.0")]
 
-use clone::Clone;
 use intrinsics;
 use ops::{CoerceUnsized, Deref};
 use fmt;
 use hash;
-use option::Option::{self, Some, None};
-use marker::{Copy, PhantomData, Send, Sized, Sync, Unsize};
+use marker::{PhantomData, Unsize};
 use mem;
 use nonzero::NonZero;
 
-use cmp::{PartialEq, Eq, Ord, PartialOrd};
 use cmp::Ordering::{self, Less, Equal, Greater};
 
 // FIXME #19649: intrinsic docs don't render, so these have no docs :(
@@ -128,28 +125,15 @@ pub unsafe fn replace<T>(dest: *mut T, mut src: T) -> T {
 /// let x = 12;
 /// let y = &x as *const i32;
 ///
-/// unsafe { println!("{}", std::ptr::read(y)); }
+/// unsafe {
+///     assert_eq!(std::ptr::read(y), 12);
+/// }
 /// ```
 #[inline(always)]
 #[stable(feature = "rust1", since = "1.0.0")]
 pub unsafe fn read<T>(src: *const T) -> T {
     let mut tmp: T = mem::uninitialized();
     copy_nonoverlapping(src, &mut tmp, 1);
-    tmp
-}
-
-#[allow(missing_docs)]
-#[inline(always)]
-#[unstable(feature = "filling_drop",
-           reason = "may play a larger role in std::ptr future extensions",
-           issue = "5016")]
-pub unsafe fn read_and_drop<T>(dest: *mut T) -> T {
-    // Copy the data out from `dest`:
-    let tmp = read(&*dest);
-
-    // Now mark `dest` as dropped:
-    write_bytes(dest, mem::POST_DROP_U8, 1);
-
     tmp
 }
 
@@ -178,7 +162,7 @@ pub unsafe fn read_and_drop<T>(dest: *mut T) -> T {
 ///
 /// unsafe {
 ///     std::ptr::write(y, z);
-///     println!("{}", std::ptr::read(y));
+///     assert_eq!(std::ptr::read(y), 12);
 /// }
 /// ```
 #[inline]
@@ -220,7 +204,9 @@ pub unsafe fn write<T>(dst: *mut T, src: T) {
 /// let x = 12;
 /// let y = &x as *const i32;
 ///
-/// unsafe { println!("{}", std::ptr::read_volatile(y)); }
+/// unsafe {
+///     assert_eq!(std::ptr::read_volatile(y), 12);
+/// }
 /// ```
 #[inline]
 #[stable(feature = "volatile", since = "1.9.0")]
@@ -266,7 +252,7 @@ pub unsafe fn read_volatile<T>(src: *const T) -> T {
 ///
 /// unsafe {
 ///     std::ptr::write_volatile(y, z);
-///     println!("{}", std::ptr::read_volatile(y));
+///     assert_eq!(std::ptr::read_volatile(y), 12);
 /// }
 /// ```
 #[inline]
@@ -493,6 +479,40 @@ impl<T: ?Sized> PartialEq for *mut T {
 #[stable(feature = "rust1", since = "1.0.0")]
 impl<T: ?Sized> Eq for *mut T {}
 
+/// Compare raw pointers for equality.
+///
+/// This is the same as using the `==` operator, but less generic:
+/// the arguments have to be `*const T` raw pointers,
+/// not anything that implements `PartialEq`.
+///
+/// This can be used to compare `&T` references (which coerce to `*const T` implicitly)
+/// by their address rather than comparing the values they point to
+/// (which is what the `PartialEq for &T` implementation does).
+///
+/// # Examples
+///
+/// ```
+/// #![feature(ptr_eq)]
+/// use std::ptr;
+///
+/// let five = 5;
+/// let other_five = 5;
+/// let five_ref = &five;
+/// let same_five_ref = &five;
+/// let other_five_ref = &other_five;
+///
+/// assert!(five_ref == same_five_ref);
+/// assert!(five_ref == other_five_ref);
+///
+/// assert!(ptr::eq(five_ref, same_five_ref));
+/// assert!(!ptr::eq(five_ref, other_five_ref));
+/// ```
+#[unstable(feature = "ptr_eq", reason = "newly added", issue = "36497")]
+#[inline]
+pub fn eq<T: ?Sized>(a: *const T, b: *const T) -> bool {
+    a == b
+}
+
 #[stable(feature = "rust1", since = "1.0.0")]
 impl<T: ?Sized> Clone for *const T {
     #[inline]
@@ -571,12 +591,21 @@ macro_rules! fnptr_impls_safety_abi {
 }
 
 macro_rules! fnptr_impls_args {
-    ($($Arg: ident),*) => {
+    ($($Arg: ident),+) => {
         fnptr_impls_safety_abi! { extern "Rust" fn($($Arg),*) -> Ret, $($Arg),* }
         fnptr_impls_safety_abi! { extern "C" fn($($Arg),*) -> Ret, $($Arg),* }
+        fnptr_impls_safety_abi! { extern "C" fn($($Arg),* , ...) -> Ret, $($Arg),* }
         fnptr_impls_safety_abi! { unsafe extern "Rust" fn($($Arg),*) -> Ret, $($Arg),* }
         fnptr_impls_safety_abi! { unsafe extern "C" fn($($Arg),*) -> Ret, $($Arg),* }
-    }
+        fnptr_impls_safety_abi! { unsafe extern "C" fn($($Arg),* , ...) -> Ret, $($Arg),* }
+    };
+    () => {
+        // No variadic functions with 0 parameters
+        fnptr_impls_safety_abi! { extern "Rust" fn() -> Ret, }
+        fnptr_impls_safety_abi! { extern "C" fn() -> Ret, }
+        fnptr_impls_safety_abi! { unsafe extern "Rust" fn() -> Ret, }
+        fnptr_impls_safety_abi! { unsafe extern "C" fn() -> Ret, }
+    };
 }
 
 fnptr_impls_args! { }

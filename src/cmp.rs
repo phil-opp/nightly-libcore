@@ -34,9 +34,6 @@
 
 use self::Ordering::*;
 
-use marker::Sized;
-use option::Option::{self, Some};
-
 /// Trait for equality comparisons which are [partial equivalence
 /// relations](http://en.wikipedia.org/wiki/Partial_equivalence_relation).
 ///
@@ -132,7 +129,7 @@ pub trait PartialEq<Rhs: ?Sized = Self> {
 /// This trait can be used with `#[derive]`. When `derive`d, because `Eq` has
 /// no extra methods, it is only informing the compiler that this is an
 /// equivalence relation rather than a partial equivalence relation. Note that
-/// the `derive` strategy requires all fields are `PartialEq`, which isn't
+/// the `derive` strategy requires all fields are `Eq`, which isn't
 /// always desired.
 ///
 /// ## How can I implement `Eq`?
@@ -167,6 +164,17 @@ pub trait Eq: PartialEq<Self> {
     #[stable(feature = "rust1", since = "1.0.0")]
     fn assert_receiver_is_total_eq(&self) {}
 }
+
+// FIXME: this struct is used solely by #[derive] to
+// assert that every component of a type implements Eq.
+//
+// This struct should never appear in user code.
+#[doc(hidden)]
+#[allow(missing_debug_implementations)]
+#[unstable(feature = "derive_eq",
+           reason = "deriving hack, should not be public",
+           issue = "0")]
+pub struct AssertParamIsEq<T: Eq + ?Sized> { _field: ::marker::PhantomData<T> }
 
 /// An `Ordering` is the result of a comparison between two values.
 ///
@@ -386,7 +394,7 @@ impl PartialOrd for Ordering {
 /// }
 /// ```
 ///
-/// You may also find it useful to use `partial_cmp()` on your type`s fields. Here
+/// You may also find it useful to use `partial_cmp()` on your type's fields. Here
 /// is an example of `Person` types who have a floating-point `height` field that
 /// is the only field to be used for sorting:
 ///
@@ -571,11 +579,7 @@ pub fn max<T: Ord>(v1: T, v2: T) -> T {
 
 // Implementation of PartialEq, Eq, PartialOrd and Ord for primitive types
 mod impls {
-    use cmp::{PartialOrd, Ord, PartialEq, Eq, Ordering};
-    use cmp::Ordering::{Less, Greater, Equal};
-    use marker::Sized;
-    use option::Option;
-    use option::Option::{Some, None};
+    use cmp::Ordering::{self, Less, Greater, Equal};
 
     macro_rules! partial_eq_impl {
         ($($t:ty)*) => ($(
@@ -698,6 +702,30 @@ mod impls {
     }
 
     ord_impl! { char usize u8 u16 u32 u64 isize i8 i16 i32 i64 }
+
+    #[unstable(feature = "never_type", issue = "35121")]
+    impl PartialEq for ! {
+        fn eq(&self, _: &!) -> bool {
+            *self
+        }
+    }
+
+    #[unstable(feature = "never_type", issue = "35121")]
+    impl Eq for ! {}
+
+    #[unstable(feature = "never_type", issue = "35121")]
+    impl PartialOrd for ! {
+        fn partial_cmp(&self, _: &!) -> Option<Ordering> {
+            *self
+        }
+    }
+
+    #[unstable(feature = "never_type", issue = "35121")]
+    impl Ord for ! {
+        fn cmp(&self, _: &!) -> Ordering {
+            *self
+        }
+    }
 
     // & pointers
 

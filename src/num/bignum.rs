@@ -27,8 +27,6 @@
             issue = "0")]
 #![macro_use]
 
-use prelude::v1::*;
-
 use mem;
 use intrinsics;
 
@@ -476,9 +474,9 @@ macro_rules! define_bignum {
                 let sz = if self.size < 1 {1} else {self.size};
                 let digitlen = mem::size_of::<$ty>() * 2;
 
-                try!(write!(f, "{:#x}", self.base[sz-1]));
+                write!(f, "{:#x}", self.base[sz-1])?;
                 for &v in self.base[..sz-1].iter().rev() {
-                    try!(write!(f, "_{:01$x}", v, digitlen));
+                    write!(f, "_{:01$x}", v, digitlen)?;
                 }
                 ::result::Result::Ok(())
             }
@@ -494,6 +492,5 @@ define_bignum!(Big32x40: type=Digit32, n=40);
 // this one is used for testing only.
 #[doc(hidden)]
 pub mod tests {
-    use prelude::v1::*;
     define_bignum!(Big8x3: type=u8, n=3);
 }

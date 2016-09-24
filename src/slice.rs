@@ -33,23 +33,15 @@
 // * The `raw` and `bytes` submodules.
 // * Boilerplate trait implementations.
 
-use clone::Clone;
-use cmp::{Ordering, PartialEq, PartialOrd, Eq, Ord};
-use cmp::Ordering::{Less, Equal, Greater};
+use cmp::Ordering::{self, Less, Equal, Greater};
 use cmp;
-use default::Default;
 use fmt;
 use intrinsics::assume;
 use iter::*;
-use ops::{FnMut, self};
-use ops::RangeFull;
-use option::Option;
-use option::Option::{None, Some};
-use result::Result;
-use result::Result::{Ok, Err};
+use ops::{self, RangeFull};
 use ptr;
 use mem;
-use marker::{Copy, Send, Sync, self};
+use marker;
 use iter_private::TrustedRandomAccess;
 
 #[repr(C)]
@@ -105,11 +97,11 @@ pub trait SliceExt {
     fn binary_search(&self, x: &Self::Item) -> Result<usize, usize>
         where Self::Item: Ord;
     #[stable(feature = "core", since = "1.6.0")]
-    fn binary_search_by<F>(&self, f: F) -> Result<usize, usize>
-        where F: FnMut(&Self::Item) -> Ordering;
+    fn binary_search_by<'a, F>(&'a self, f: F) -> Result<usize, usize>
+        where F: FnMut(&'a Self::Item) -> Ordering;
     #[stable(feature = "slice_binary_search_by_key", since = "1.10.0")]
-    fn binary_search_by_key<B, F>(&self, b: &B, f: F) -> Result<usize, usize>
-        where F: FnMut(&Self::Item) -> B,
+    fn binary_search_by_key<'a, B, F>(&'a self, b: &B, f: F) -> Result<usize, usize>
+        where F: FnMut(&'a Self::Item) -> B,
               B: Ord;
     #[stable(feature = "core", since = "1.6.0")]
     fn len(&self) -> usize;
@@ -301,8 +293,8 @@ impl<T> SliceExt for [T] {
         self as *const [T] as *const T
     }
 
-    fn binary_search_by<F>(&self, mut f: F) -> Result<usize, usize> where
-        F: FnMut(&T) -> Ordering
+    fn binary_search_by<'a, F>(&'a self, mut f: F) -> Result<usize, usize>
+        where F: FnMut(&'a T) -> Ordering
     {
         let mut base = 0usize;
         let mut s = self;
@@ -514,8 +506,8 @@ impl<T> SliceExt for [T] {
     }
 
     #[inline]
-    fn binary_search_by_key<B, F>(&self, b: &B, mut f: F) -> Result<usize, usize>
-        where F: FnMut(&Self::Item) -> B,
+    fn binary_search_by_key<'a, B, F>(&'a self, b: &B, mut f: F) -> Result<usize, usize>
+        where F: FnMut(&'a Self::Item) -> B,
               B: Ord
     {
         self.binary_search_by(|k| f(k).cmp(b))
@@ -528,8 +520,8 @@ impl<T> ops::Index<usize> for [T] {
     type Output = T;
 
     fn index(&self, index: usize) -> &T {
-        assert!(index < self.len());
-        unsafe { self.get_unchecked(index) }
+        // NB built-in indexing
+        &(*self)[index]
     }
 }
 
@@ -538,8 +530,8 @@ impl<T> ops::Index<usize> for [T] {
 impl<T> ops::IndexMut<usize> for [T] {
     #[inline]
     fn index_mut(&mut self, index: usize) -> &mut T {
-        assert!(index < self.len());
-        unsafe { self.get_unchecked_mut(index) }
+        // NB built-in indexing
+        &mut (*self)[index]
     }
 }
 
@@ -763,11 +755,13 @@ impl<T> ops::IndexMut<ops::RangeToInclusive<usize>> for [T] {
 
 #[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T> Default for &'a [T] {
+    /// Creates an empty slice.
     fn default() -> &'a [T] { &[] }
 }
 
 #[stable(feature = "mut_slice_default", since = "1.5.0")]
 impl<'a, T> Default for &'a mut [T] {
+    /// Creates a mutable empty slice.
     fn default() -> &'a mut [T] { &mut [] }
 }
 
@@ -902,6 +896,8 @@ macro_rules! make_mut_slice {
 
 /// Immutable slice iterator
 ///
+/// This struct is created by the [`iter`] method on [slices].
+///
 /// # Examples
 ///
 /// Basic usage:
@@ -915,6 +911,9 @@ macro_rules! make_mut_slice {
 ///     println!("{}", element);
 /// }
 /// ```
+///
+/// [`iter`]: ../../std/primitive.slice.html#method.iter
+/// [slices]: ../../std/primitive.slice.html
 #[stable(feature = "rust1", since = "1.0.0")]
 pub struct Iter<'a, T: 'a> {
     ptr: *const T,
@@ -986,12 +985,24 @@ iterator!{struct Iter -> *const T, &'a T}
 #[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T> ExactSizeIterator for Iter<'a, T> {}
 
+#[unstable(feature = "fused", issue = "35602")]
+impl<'a, T> FusedIterator for Iter<'a, T> {}
+
 #[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T> Clone for Iter<'a, T> {
     fn clone(&self) -> Iter<'a, T> { Iter { ptr: self.ptr, end: self.end, _marker: self._marker } }
 }
 
+#[stable(feature = "slice_iter_as_ref", since = "1.12.0")]
+impl<'a, T> AsRef<[T]> for Iter<'a, T> {
+    fn as_ref(&self) -> &[T] {
+        self.as_slice()
+    }
+}
+
 /// Mutable slice iterator.
+///
+/// This struct is created by the [`iter_mut`] method on [slices].
 ///
 /// # Examples
 ///
@@ -1010,6 +1021,9 @@ impl<'a, T> Clone for Iter<'a, T> {
 /// // We now have "[2, 3, 4]":
 /// println!("{:?}", slice);
 /// ```
+///
+/// [`iter_mut`]: ../../std/primitive.slice.html#method.iter_mut
+/// [slices]: ../../std/primitive.slice.html
 #[stable(feature = "rust1", since = "1.0.0")]
 pub struct IterMut<'a, T: 'a> {
     ptr: *mut T,
@@ -1091,6 +1105,9 @@ iterator!{struct IterMut -> *mut T, &'a mut T}
 
 #[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T> ExactSizeIterator for IterMut<'a, T> {}
+
+#[unstable(feature = "fused", issue = "35602")]
+impl<'a, T> FusedIterator for IterMut<'a, T> {}
 
 /// An internal abstraction over the splitting iterators, so that
 /// splitn, splitn_mut etc can be implemented once.
@@ -1184,6 +1201,9 @@ impl<'a, T, P> SplitIter for Split<'a, T, P> where P: FnMut(&T) -> bool {
     }
 }
 
+#[unstable(feature = "fused", issue = "35602")]
+impl<'a, T, P> FusedIterator for Split<'a, T, P> where P: FnMut(&T) -> bool {}
+
 /// An iterator over the subslices of the vector which are separated
 /// by elements that match `pred`.
 #[stable(feature = "rust1", since = "1.0.0")]
@@ -1273,6 +1293,9 @@ impl<'a, T, P> DoubleEndedIterator for SplitMut<'a, T, P> where
         }
     }
 }
+
+#[unstable(feature = "fused", issue = "35602")]
+impl<'a, T, P> FusedIterator for SplitMut<'a, T, P> where P: FnMut(&T) -> bool {}
 
 /// An private iterator over subslices separated by elements that
 /// match a predicate function, splitting at most a fixed number of
@@ -1390,6 +1413,10 @@ macro_rules! forward_iterator {
                 self.inner.size_hint()
             }
         }
+
+        #[unstable(feature = "fused", issue = "35602")]
+        impl<'a, $elem, P> FusedIterator for $name<'a, $elem, P>
+            where P: FnMut(&T) -> bool {}
     }
 }
 
@@ -1487,6 +1514,9 @@ impl<'a, T> DoubleEndedIterator for Windows<'a, T> {
 
 #[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T> ExactSizeIterator for Windows<'a, T> {}
+
+#[unstable(feature = "fused", issue = "35602")]
+impl<'a, T> FusedIterator for Windows<'a, T> {}
 
 /// An iterator over a slice in (non-overlapping) chunks (`size` elements at a
 /// time).
@@ -1591,6 +1621,9 @@ impl<'a, T> DoubleEndedIterator for Chunks<'a, T> {
 #[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T> ExactSizeIterator for Chunks<'a, T> {}
 
+#[unstable(feature = "fused", issue = "35602")]
+impl<'a, T> FusedIterator for Chunks<'a, T> {}
+
 /// An iterator over a slice in (non-overlapping) mutable chunks (`size`
 /// elements at a time). When the slice len is not evenly divided by the chunk
 /// size, the last slice of the iteration will be the remainder.
@@ -1685,6 +1718,9 @@ impl<'a, T> DoubleEndedIterator for ChunksMut<'a, T> {
 
 #[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T> ExactSizeIterator for ChunksMut<'a, T> {}
+
+#[unstable(feature = "fused", issue = "35602")]
+impl<'a, T> FusedIterator for ChunksMut<'a, T> {}
 
 //
 // Free functions
@@ -1787,7 +1823,8 @@ impl<T: PartialOrd> PartialOrd for [T] {
 // intermediate trait for specialization of slice's PartialEq
 trait SlicePartialEq<B> {
     fn equal(&self, other: &[B]) -> bool;
-    fn not_equal(&self, other: &[B]) -> bool;
+
+    fn not_equal(&self, other: &[B]) -> bool { !self.equal(other) }
 }
 
 // Generic slice equality
@@ -1807,20 +1844,6 @@ impl<A, B> SlicePartialEq<B> for [A]
 
         true
     }
-
-    default fn not_equal(&self, other: &[B]) -> bool {
-        if self.len() != other.len() {
-            return true;
-        }
-
-        for i in 0..self.len() {
-            if self[i].ne(&other[i]) {
-                return true;
-            }
-        }
-
-        false
-    }
 }
 
 // Use memcmp for bytewise equality when the types allow
@@ -1839,10 +1862,6 @@ impl<A> SlicePartialEq<A> for [A]
             memcmp(self.as_ptr() as *const u8,
                    other.as_ptr() as *const u8, size) == 0
         }
-    }
-
-    fn not_equal(&self, other: &[A]) -> bool {
-        !self.equal(other)
     }
 }
 
