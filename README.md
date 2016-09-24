@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/phil-opp/nightly-libcore.svg?branch=master)](https://travis-ci.org/phil-opp/nightly-libcore)
 
+**SUPERSEEDED**: [Xargo](https://github.com/japaric/xargo) is a much better solution. The float problem can be fixed using the [`soft-float` target feature](http://os.phil-opp.com/returning-from-exceptions.html#sse-register-return).
+
 Rust's [core library](https://doc.rust-lang.org/core/) as a cargo crate. Updated daily using [nightli.es](https://nightli.es).
 
 It has a `disable_float` feature that includes thepowersgang's [float-free libcore patch](https://github.com/thepowersgang/rust-barebones-kernel/blob/master/libcore_nofp.patch).
