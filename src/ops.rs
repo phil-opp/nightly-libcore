@@ -182,11 +182,11 @@ pub trait Drop {
     /// After this function is over, the memory of `self` will be deallocated.
     ///
     /// This function cannot be called explicitly. This is compiler error
-    /// [0040]. However, the [`std::mem::drop`] function in the prelude can be
+    /// [E0040]. However, the [`std::mem::drop`] function in the prelude can be
     /// used to call the argument's `Drop` implementation.
     ///
-    /// [0040]: https://doc.rust-lang.org/error-index.html#E0040
-    /// [`std::mem::drop`]: https://doc.rust-lang.org/std/mem/fn.drop.html
+    /// [E0040]: ../../error-index.html#E0040
+    /// [`std::mem::drop`]: ../../std/mem/fn.drop.html
     ///
     /// # Panics
     ///
@@ -2504,13 +2504,13 @@ impl<'a, T: ?Sized> Deref for &'a mut T {
 /// impl<T> Deref for DerefMutExample<T> {
 ///     type Target = T;
 ///
-///     fn deref<'a>(&'a self) -> &'a T {
+///     fn deref(&self) -> &T {
 ///         &self.value
 ///     }
 /// }
 ///
 /// impl<T> DerefMut for DerefMutExample<T> {
-///     fn deref_mut<'a>(&'a mut self) -> &'a mut T {
+///     fn deref_mut(&mut self) -> &mut T {
 ///         &mut self.value
 ///     }
 /// }
